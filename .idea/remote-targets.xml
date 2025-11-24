@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+    <component name="RemoteTargetsManager">
+        <targets>
+            <target name="WSL" type="wsl" uuid="a466344c-32a9-4644-a3fc-8ab7cf68e6fa">
+                <config>
+                    <option name="distributionMsId" value="Ubuntu"/>
+                </config>
+                <ContributedStateBase type="JavaLanguageRuntime">
+                    <config>
+                        <option name="homePath" value="/home/ubuntu/.jdks/jdk-25+36"/>
+                        <option name="javaVersionString" value="25"/>
+                    </config>
+                </ContributedStateBase>
+                <ContributedStateBase type="MavenRuntime">
+                    <config>
+                        <option name="homePath"
+                                value="C:\Program Files\JetBrains\IntelliJ IDEA 2025.2\plugins\maven\lib\maven3"/>
+                        <option name="versionString" value="3.9.9"/>
+                    </config>
+                </ContributedStateBase>
+            </target>
+        </targets>
+    </component>
+</project>
