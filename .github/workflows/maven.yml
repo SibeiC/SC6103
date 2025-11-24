@@ -18,6 +18,9 @@ jobs:
     timeout-minutes: 20
     outputs:
       app-version: ${{ steps.extract-version.outputs.app-version }}
+    defaults:
+      run:
+        working-directory: ./client
 
     concurrency:
       group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -45,6 +48,7 @@ jobs:
 
       - name: Build and Verify
         run: mvn -B -P ci -DskipTests=false clean verify
+
 
       - name: Publish Test Summary
         if: always()
