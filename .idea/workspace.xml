@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="15e7d044-fecd-480c-8d41-c36c68ef7c58" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.github/workflows/maven.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="15e7d044-fecd-480c-8d41-c36c68ef7c58" name="Changes" comment="Add Maven project setup and GitHub Actions workflow for CI&#10;&#10;- Introduced `pom.xml` with dependencies and configurations.&#10;- Added `.gitignore` enhancements for IDE-specific files and build outputs.&#10;- Configured GitHub Actions for Maven-based CI pipeline.&#10;- Included IntelliJ IDEA project-specific settings.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +77,7 @@
       <option name="presentableId" value="Default" />
       <updated>1754120269819</updated>
       <workItem from="1754120272575" duration="227000" />
-      <workItem from="1763979341450" duration="382000" />
+      <workItem from="1763979341450" duration="730000" />
     </task>
     <servers />
   </component>
@@ -88,6 +85,8 @@
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add Maven project setup and GitHub Actions workflow for CI&#10;&#10;- Introduced `pom.xml` with dependencies and configurations.&#10;- Added `.gitignore` enhancements for IDE-specific files and build outputs.&#10;- Configured GitHub Actions for Maven-based CI pipeline.&#10;- Included IntelliJ IDEA project-specific settings." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Maven project setup and GitHub Actions workflow for CI&#10;&#10;- Introduced `pom.xml` with dependencies and configurations.&#10;- Added `.gitignore` enhancements for IDE-specific files and build outputs.&#10;- Configured GitHub Actions for Maven-based CI pipeline.&#10;- Included IntelliJ IDEA project-specific settings." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
 </project>
