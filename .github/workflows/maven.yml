@@ -61,3 +61,5 @@ jobs:
       - name: Update dependency graph
         uses: advanced-security/maven-dependency-submission-action@v5
         if: ${{ github.event_name != 'pull_request' }}
+        with:
+          directory: ./client
