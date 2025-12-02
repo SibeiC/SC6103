@@ -28,7 +28,7 @@ public class Application implements CommandLineRunner {
      *
      * @param args raw command-line arguments.
      */
-    static void main(String[] args) {
+    public static void main(String[] args) {
         new SpringApplication(Application.class).run(args);
     }
 
