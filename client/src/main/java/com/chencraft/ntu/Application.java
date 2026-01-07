@@ -7,6 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.Serial;
 
+/**
+ * Main application class for the Distributed Banking System.
+ * Bootstraps the Spring Boot application and provides a command-line runner hook.
+ */
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
@@ -28,7 +32,7 @@ public class Application implements CommandLineRunner {
      *
      * @param args raw command-line arguments.
      */
-    public static void main(String[] args) {
+    static void main(String[] args) {
         new SpringApplication(Application.class).run(args);
     }
 
