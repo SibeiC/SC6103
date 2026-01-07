@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "Generic response")
-public class GenericResponse {
+public abstract class GenericResponse {
     /**
      * HTTP-like status code indicating the outcome of the operation.
      */

@@ -3,7 +3,7 @@ package com.chencraft.ntu.api;
 import com.chencraft.ntu.model.request.CloseAccountRequest;
 import com.chencraft.ntu.model.request.MonitorRequest;
 import com.chencraft.ntu.model.request.OpenAccountRequest;
-import com.chencraft.ntu.model.response.GenericResponse;
+import com.chencraft.ntu.model.response.DefaultResponse;
 import com.chencraft.ntu.model.response.OpenAccountResponse;
 import com.chencraft.ntu.service.BankingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +43,19 @@ public class AccountApiController implements AccountApi {
      * {@inheritDoc}
      */
     @Override
-    public ResponseEntity<GenericResponse> closeAccount(CloseAccountRequest request) {
+    public ResponseEntity<DefaultResponse> closeAccount(CloseAccountRequest request) {
         bankingService.closeAccount(request);
 
-        return ResponseEntity.ok(new GenericResponse());
+        return ResponseEntity.ok(new DefaultResponse());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ResponseEntity<GenericResponse> monitorAccounts(MonitorRequest request) {
+    public ResponseEntity<DefaultResponse> monitorAccounts(MonitorRequest request) {
         bankingService.registerMonitor(request);
 
-        return ResponseEntity.ok(new GenericResponse());
+        return ResponseEntity.ok(new DefaultResponse());
     }
 }

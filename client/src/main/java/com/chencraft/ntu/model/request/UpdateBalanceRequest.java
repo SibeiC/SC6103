@@ -1,6 +1,7 @@
 package com.chencraft.ntu.model.request;
 
 import com.chencraft.ntu.model.Currency;
+import com.chencraft.ntu.model.MySerializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "Request to deposit or withdraw money")
-public class UpdateBalanceRequest {
+public class UpdateBalanceRequest implements MySerializable {
     /**
      * Name of the account holder.
      */

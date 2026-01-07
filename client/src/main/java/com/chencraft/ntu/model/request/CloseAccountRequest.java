@@ -1,5 +1,6 @@
 package com.chencraft.ntu.model.request;
 
+import com.chencraft.ntu.model.MySerializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -8,7 +9,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "Request to close an existing account")
-public class CloseAccountRequest {
+public class CloseAccountRequest implements MySerializable {
     /**
      * Name of the account holder.
      */
