@@ -44,10 +44,10 @@ public interface AccountBalanceApi {
      * @param request the balance update details (name, account number, password, currency, amount)
      * @return a response containing the updated balance
      */
-    @Operation(summary = "Withdraw money into an account", description = "Withdraws the specified amount into the account.", tags = {Tags.BALANCE})
-    @ApiResponse(responseCode = "200", description = "Withdrawal successfully",
+    @Operation(summary = "Withdraw money from an account", description = "Withdraws the specified amount from the account.", tags = {Tags.BALANCE})
+    @ApiResponse(responseCode = "200", description = "Withdrawal successful",
             content = @Content(schema = @Schema(implementation = UpdateBalanceResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
-    @RequestMapping(value = "/withdrawl", method = RequestMethod.POST)
+    @RequestMapping(value = "/withdrawal", method = RequestMethod.POST)
     ResponseEntity<UpdateBalanceResponse> withdrawal(@RequestBody UpdateBalanceRequest request);
 
     /**
