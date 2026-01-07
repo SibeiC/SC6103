@@ -1,6 +1,7 @@
 package com.chencraft.ntu.model.response;
 
 
+import com.chencraft.ntu.model.MyDeserializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "Response to transfer funds between accounts")
-public class TransferResponse extends GenericResponse {
+public class TransferResponse extends GenericResponse implements MyDeserializable {
     /**
      * The account number from which funds were transferred.
      */

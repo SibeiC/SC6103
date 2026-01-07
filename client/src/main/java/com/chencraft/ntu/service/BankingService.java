@@ -1,9 +1,9 @@
 package com.chencraft.ntu.service;
 
-import com.chencraft.ntu.model.Account;
 import com.chencraft.ntu.model.request.*;
 import com.chencraft.ntu.model.response.TransferResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,6 +14,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class BankingService {
+    private final SocketService socketService;
+
+    @Autowired
+    public BankingService(SocketService socketService) {
+        this.socketService = socketService;
+    }
 
     /**
      * Opens a new account with the specified details.
@@ -23,7 +29,7 @@ public class BankingService {
      * @return the generated unique account number
      */
     public Integer openAccount(OpenAccountRequest request) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return socketService.sendAndReceiveInt(request);
     }
 
     /**
@@ -33,7 +39,7 @@ public class BankingService {
      * @param request the account closing details
      */
     public void closeAccount(CloseAccountRequest request) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        socketService.sendAndForget(request);
     }
 
     /**
@@ -43,7 +49,7 @@ public class BankingService {
      * @return the updated balance
      */
     public Double deposit(UpdateBalanceRequest request) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return socketService.sendAndReceiveDouble(request);
     }
 
     /**
@@ -53,7 +59,7 @@ public class BankingService {
      * @return the updated balance
      */
     public Double withdrawal(UpdateBalanceRequest request) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return socketService.sendAndReceiveDouble(request);
     }
 
     /**
@@ -64,7 +70,7 @@ public class BankingService {
      * @return the current balance
      */
     public Double getBalance(GetBalanceRequest request) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return socketService.sendAndReceiveDouble(request);
     }
 
     /**
@@ -75,7 +81,7 @@ public class BankingService {
      * @return a response containing updated balances for both accounts
      */
     public TransferResponse transfer(TransferRequest request) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return socketService.sendAndReceiveCustomType(request, TransferResponse.class);
     }
 
     /**
@@ -84,15 +90,6 @@ public class BankingService {
      * @param request the monitor interval details
      */
     public void registerMonitor(MonitorRequest request) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    /**
-     * Notifies all active monitors about an account update.
-     *
-     * @param account the account that was updated
-     */
-    private void notifyUpdate(Account account) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        socketService.sendAndForget(request);
     }
 }

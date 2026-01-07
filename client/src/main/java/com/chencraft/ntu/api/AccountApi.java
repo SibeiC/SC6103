@@ -3,7 +3,7 @@ package com.chencraft.ntu.api;
 import com.chencraft.ntu.model.request.CloseAccountRequest;
 import com.chencraft.ntu.model.request.MonitorRequest;
 import com.chencraft.ntu.model.request.OpenAccountRequest;
-import com.chencraft.ntu.model.response.GenericResponse;
+import com.chencraft.ntu.model.response.DefaultResponse;
 import com.chencraft.ntu.model.response.OpenAccountResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,9 +45,9 @@ public interface AccountApi {
      */
     @Operation(summary = "Close an existing account", description = "Closes an existing account.", tags = ACCOUNT)
     @ApiResponse(responseCode = "200", description = "Account closed successfully",
-            content = @Content(schema = @Schema(implementation = GenericResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+            content = @Content(schema = @Schema(implementation = DefaultResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
     @RequestMapping(value = "/close", method = RequestMethod.DELETE)
-    ResponseEntity<GenericResponse> closeAccount(@RequestBody CloseAccountRequest request);
+    ResponseEntity<DefaultResponse> closeAccount(@RequestBody CloseAccountRequest request);
 
     /**
      * Service to register for monitoring account updates.
@@ -58,7 +58,7 @@ public interface AccountApi {
      */
     @Operation(summary = "Monitor accounts for updates", description = "Monitors accounts for updates and returns the updated balance.", tags = ACCOUNT)
     @ApiResponse(responseCode = "200", description = "Account balance updated successfully",
-            content = @Content(schema = @Schema(implementation = GenericResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+            content = @Content(schema = @Schema(implementation = DefaultResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
     @RequestMapping(value = "/monitor", method = RequestMethod.POST)
-    ResponseEntity<GenericResponse> monitorAccounts(@RequestBody MonitorRequest request);
+    ResponseEntity<DefaultResponse> monitorAccounts(@RequestBody MonitorRequest request);
 }
