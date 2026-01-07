@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
  * - {@code String}
  * - {@code Integer} (both primitive and wrapper types)
  * - {@code Double} (both primitive and wrapper types)
- * - Other classes implementing the {@code Serializable} interface
+ * - Other classes implementing the {@code MySerializable} interface
  * <p>
  * Unsupported field types will result in an {@code UnsupportedOperationException}.
  * <p>

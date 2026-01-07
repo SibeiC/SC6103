@@ -1,5 +1,8 @@
 package com.chencraft.ntu;
 
+import com.chencraft.ntu.cli.BankingCli;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -9,10 +12,26 @@ import java.io.Serial;
 
 /**
  * Main application class for the Distributed Banking System.
- * Bootstraps the Spring Boot application and provides a command-line runner hook.
+ * Bootstraps the Spring Boot application and provides a command-line runner hook
+ * to launch the interactive CLI.
  */
 @SpringBootApplication
 public class Application implements CommandLineRunner {
+
+    private final BankingCli bankingCli;
+
+    @Value("${banking.cli.enabled:false}")
+    private boolean cliEnabled;
+
+    /**
+     * Constructor for Application.
+     *
+     * @param bankingCli the CLI interface to be launched
+     */
+    @Autowired
+    public Application(BankingCli bankingCli) {
+        this.bankingCli = bankingCli;
+    }
 
     /**
      * Hook invoked after the application context has started.
@@ -24,6 +43,9 @@ public class Application implements CommandLineRunner {
     public void run(String... arg0) {
         if (arg0.length > 0 && arg0[0].equals("exitcode")) {
             throw new ExitException();
+        }
+        if (cliEnabled) {
+            bankingCli.start();
         }
     }
 

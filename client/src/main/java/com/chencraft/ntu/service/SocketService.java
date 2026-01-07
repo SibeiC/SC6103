@@ -38,6 +38,7 @@ public class SocketService {
     public SocketService(@Value("${socket.server.host}") String host,
                          @Value("${socket.server.port}") int port) {
         try {
+            // TODO: Should attempt to reconnect to server if connection is failed
             this.socket = new Socket(host, port);
             log.info("Connected to server");
 
@@ -49,6 +50,7 @@ public class SocketService {
     }
 
     public void sendAndForget(MySerializable request) {
+        // TODO: Should not wait for the response
         sendAndReceive(request);
     }
 
@@ -68,13 +70,15 @@ public class SocketService {
     }
 
     private byte[] sendAndReceive(MySerializable request) {
+        // TODO: Add synchronization lock
         try {
             out.write(request.marshall());
             out.flush();
 
+            // TODO: This is the wrong way to receive data, it should read in a fixed?-length of data
             return in.readAllBytes();
         } catch (IOException e) {
-            throw new OperationFailedException("IOException: " + e.getMessage(), 400);
+            throw new OperationFailedException("IOException: " + e.getMessage(), 503);
         }
     }
 
