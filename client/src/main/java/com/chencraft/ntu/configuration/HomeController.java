@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 public class HomeController {
+    /**
+     * Redirects the root URL to the Swagger UI page.
+     *
+     * @return a redirection string to /swagger-ui/
+     */
     @RequestMapping(value = "/")
     public String index() {
         return "redirect:/swagger-ui/";
