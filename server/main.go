@@ -27,6 +27,15 @@ func main() {
 	defer conn.Close()
 
 	fmt.Printf("Server listening on 0.0.0.0:%d\n", *portPtr)
+	addrs, _ := net.InterfaceAddrs()
+	fmt.Println("Server LAN IPs:")
+	for _, address := range addrs {
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				fmt.Println("- " + ipnet.IP.String())
+			}
+		}
+	}
 	fmt.Printf("Packet Loss Rate: %d%%\n", *lossPtr)
 
 	// Seed random for loss simulation
