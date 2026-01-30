@@ -8,12 +8,15 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Service;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Provides functionality for messaging with a server over a socket connection.
@@ -30,23 +33,25 @@ import java.net.Socket;
 @Slf4j
 @Service
 public class SocketService {
-    private final Socket socket;
-    private final DataInputStream in;
-    private final DataOutputStream out;
+    private final String host;
+    private final int port;
+
+    private DatagramSocket socket;
 
     @Autowired
-    public SocketService(@Value("${socket.server.host}") String host,
-                         @Value("${socket.server.port}") int port) {
-        try {
-            // TODO: Should attempt to reconnect to server if connection is failed
-            this.socket = new Socket(host, port);
-            log.info("Connected to server");
+    public SocketService(ApplicationArguments args,
+                         @Value("${socket.server.host}") String defaultHost,
+                         @Value("${socket.server.port}") int defaultPort) {
+        this.host = args.containsOption("host") && !Objects.requireNonNull(args.getOptionValues("host")).isEmpty()
+                ? Objects.requireNonNull(args.getOptionValues("host")).getFirst()
+                : defaultHost;
 
-            this.in = new DataInputStream(socket.getInputStream());
-            this.out = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.port = args.containsOption("port") && !Objects.requireNonNull(args.getOptionValues("port")).isEmpty()
+                ? Integer.parseInt(Objects.requireNonNull(args.getOptionValues("port")).getFirst())
+                : defaultPort;
+
+        log.info("SocketService initialized with host: {}, port: {}", host, port);
+        this.ensureSocketConnectionEstablished();
     }
 
     public void sendAndForget(MySerializable request) {
@@ -70,23 +75,41 @@ public class SocketService {
     }
 
     private byte[] sendAndReceive(MySerializable request) {
+        this.ensureSocketConnectionEstablished();
+
         // TODO: Add synchronization lock
         try {
-            out.write(request.marshall());
-            out.flush();
+            byte[] buffer = request.marshall();
+            InetAddress address = InetAddress.getByName(host);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
+            socket.send(packet);
 
-            // TODO: This is the wrong way to receive data, it should read in a fixed?-length of data
-            return in.readAllBytes();
+            byte[] receiveBuffer = new byte[1024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            socket.receive(receivePacket);
+
+            return Arrays.copyOfRange(receivePacket.getData(), 0, receivePacket.getLength());
         } catch (IOException e) {
             throw new OperationFailedException("IOException: " + e.getMessage(), 503);
         }
     }
 
+    private void ensureSocketConnectionEstablished() {
+        if (this.socket == null || this.socket.isClosed()) {
+            try {
+                this.socket = new DatagramSocket();
+                log.info("UDP Socket initialized");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     @PreDestroy
-    public void shutdown() throws IOException {
-        in.close();
-        out.close();
-        socket.close();
+    public void shutdown() {
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
         log.info("Disconnected from server");
     }
 }
