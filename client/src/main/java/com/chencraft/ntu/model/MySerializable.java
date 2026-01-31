@@ -3,6 +3,8 @@ package com.chencraft.ntu.model;
 import com.chencraft.ntu.util.Converter;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interface for defining serializable objects that can be converted into
@@ -29,32 +31,64 @@ import java.lang.reflect.Field;
  * to be serialized are properly initialized to prevent unintended behavior.
  */
 public interface MySerializable {
-    default byte[] marshall() {
-        Field[] fields = this.getClass().getDeclaredFields();
+    OpCode getOpCode();
 
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Class<?> type = field.getType();
+    List<FieldDefn> getFieldDefs();
 
+    default byte[] marshall(int requestId) {
+        List<byte[]> pieces = new ArrayList<>();
+        int totalLength = 0;
+
+        // Message Type value
+        byte[] typeBytes = Converter.toByteArray(MessageType.MsgRequest);
+        pieces.add(typeBytes);
+        totalLength += typeBytes.length;
+
+        // Request Id
+        byte[] idBytes = Converter.toByteArray(requestId);
+        pieces.add(idBytes);
+        totalLength += idBytes.length;
+
+        // Operation Code
+        byte[] opCodeBytes = new byte[]{getOpCode().getValue()};
+        pieces.add(opCodeBytes);
+        totalLength += opCodeBytes.length;
+
+        // Body
+        for (FieldDefn fieldDefn : getFieldDefs()) {
             try {
-                if (type.equals(String.class)) {
-                    byte[] value = Converter.toByteArray((String) field.get(this));
-                } else if (double.class.equals(type) || Double.class.equals(type)) {
-                    byte[] value = Converter.toByteArray((Double) field.get(this));
-                } else if (int.class.equals(type) || Integer.class.equals(type)) {
-                    byte[] value = Converter.toByteArray((Integer) field.get(this));
-                } else if (MySerializable.class.isAssignableFrom(type)) {
-                    byte[] value = ((MySerializable) field.get(this)).marshall();
+                String fieldName = fieldDefn.getFieldName();
+                Class<?> fieldType = fieldDefn.getFieldType();
+                Field field = this.getClass().getDeclaredField(fieldName);
+                field.setAccessible(true);
+
+                byte[] fieldBytes;
+                if (fieldType.equals(String.class)) {
+                    fieldBytes = Converter.toByteArray((String) field.get(this));
+                } else if (fieldType.equals(Double.class)) {
+                    fieldBytes = Converter.toByteArray((Double) field.get(this));
+                } else if (fieldType.equals(Integer.class)) {
+                    fieldBytes = Converter.toByteArray((Integer) field.get(this));
+                } else if (fieldType.equals(Currency.class)) {
+                    fieldBytes = Converter.toByteArray((Currency) field.get(this));
                 } else {
-                    throw new UnsupportedOperationException("Unsupported type: " + type.getSimpleName());
+                    throw new UnsupportedOperationException("Unsupported type: " + fieldType.getSimpleName());
                 }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Failed to marshall field: " + field.getName()
+                pieces.add(fieldBytes);
+                totalLength += fieldBytes.length;
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException("Failed to marshall field: " + fieldDefn.getFieldName()
                                                    + " for class: " + this.getClass()
                                                                           .getSimpleName(), e);
             }
         }
 
-        throw new UnsupportedOperationException("To be implemented.");
+        byte[] result = new byte[totalLength];
+        int currentPos = 0;
+        for (byte[] piece : pieces) {
+            System.arraycopy(piece, 0, result, currentPos, piece.length);
+            currentPos += piece.length;
+        }
+        return result;
     }
 }

@@ -1,23 +1,19 @@
 package com.chencraft.ntu.model.response;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.chencraft.ntu.model.MessageType;
+import com.chencraft.ntu.model.OpCode;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 /**
- * A standard generic response object used for acknowledging operations that do not return specific data.
+ * A standard generic response object
  */
 @Data
-@Schema(description = "Generic response")
+@SuperBuilder
 public abstract class GenericResponse {
-    /**
-     * HTTP-like status code indicating the outcome of the operation.
-     */
-    @Schema(description = "Status code", example = "200", requiredMode = Schema.RequiredMode.REQUIRED)
-    private int statusCode = 200;
+    private MessageType messageType;
 
-    /**
-     * Descriptive message about the operation result.
-     */
-    @Schema(description = "Response message", example = "Operation successful", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String message = "Operation successful";
+    private int requestId;
+
+    private OpCode operationCode;
 }

@@ -1,7 +1,6 @@
 package com.chencraft.ntu.service;
 
 import com.chencraft.ntu.model.request.*;
-import com.chencraft.ntu.model.response.TransferResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,8 +37,8 @@ public class BankingService {
      *
      * @param request the account closing details
      */
-    public void closeAccount(CloseAccountRequest request) {
-        socketService.sendAndForget(request);
+    public String closeAccount(CloseAccountRequest request) {
+        return socketService.sendAndReceiveString(request);
     }
 
     /**
@@ -80,8 +79,8 @@ public class BankingService {
      * @param request the transfer details
      * @return a response containing updated balances for both accounts
      */
-    public TransferResponse transfer(TransferRequest request) {
-        return socketService.sendAndReceiveCustomType(request, TransferResponse.class);
+    public Double transfer(TransferRequest request) {
+        return socketService.sendAndReceiveDouble(request);
     }
 
     /**
@@ -89,7 +88,17 @@ public class BankingService {
      *
      * @param request the monitor interval details
      */
-    public void registerMonitor(MonitorRequest request) {
-        socketService.sendAndForget(request);
+    public String registerMonitor(MonitorRequest request) {
+        return socketService.sendAndReceiveString(request);
+    }
+
+    /**
+     * Listens for a callback message from the server.
+     *
+     * @param timeoutMillis maximum time to wait for a message
+     * @return the callback message string, or null if timeout or error
+     */
+    public String receiveCallback(int timeoutMillis) {
+        return socketService.receiveCallback(timeoutMillis);
     }
 }

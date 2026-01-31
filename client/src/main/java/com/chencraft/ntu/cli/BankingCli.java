@@ -1,8 +1,8 @@
 package com.chencraft.ntu.cli;
 
+import com.chencraft.ntu.exception.OperationFailedException;
 import com.chencraft.ntu.model.Currency;
 import com.chencraft.ntu.model.request.*;
-import com.chencraft.ntu.model.response.TransferResponse;
 import com.chencraft.ntu.service.BankingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +57,8 @@ public class BankingCli {
                     default ->
                             System.out.println("Unknown command: " + command + ". Type 'help' for available commands.");
                 }
+            } catch (OperationFailedException e) {
+                System.out.println("[Operation Failed] " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("[ERROR] " + e.getMessage());
             }
@@ -108,8 +110,8 @@ public class BankingCli {
         request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
 
-        bankingService.closeAccount(request);
-        System.out.println("[SUCCESS] Account close request sent.");
+        String msg = bankingService.closeAccount(request);
+        System.out.println("[SUCCESS] " + msg);
     }
 
     private void handleDeposit(String[] parts) {
@@ -123,6 +125,7 @@ public class BankingCli {
         request.setPassword(parts[3]);
         request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
         request.setAmount(Double.parseDouble(parts[5]));
+        request.setDepositFlag(true);
 
         Double newBalance = bankingService.deposit(request);
         System.out.println("[SUCCESS] Deposit successful. New Balance: " + newBalance);
@@ -139,6 +142,7 @@ public class BankingCli {
         request.setPassword(parts[3]);
         request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
         request.setAmount(Double.parseDouble(parts[5]));
+        request.setDepositFlag(false);
 
         Double newBalance = bankingService.withdrawal(request);
         System.out.println("[SUCCESS] Withdrawal successful. New Balance: " + newBalance);
@@ -159,21 +163,21 @@ public class BankingCli {
     }
 
     private void handleTransfer(String[] parts) {
-        if (parts.length != 6) {
-            System.out.println("Usage: transfer <name> <fromAccountNumber> <password> <toAccountNumber> <amount>");
+        if (parts.length != 7) {
+            System.out.println("Usage: transfer <name> <fromAccountNumber> <password> <toAccountNumber> <currency> <amount>");
             return;
         }
         TransferRequest request = new TransferRequest();
         request.setName(parts[1]);
-        request.setFromAccountNumber(Integer.parseInt(parts[2]));
+        request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
-        request.setToAccountNumber(Integer.parseInt(parts[4]));
-        request.setAmount(Double.parseDouble(parts[5]));
+        request.setDestAccountNumber(Integer.parseInt(parts[4]));
+        request.setCurrency(Currency.valueOf(parts[5].toUpperCase()));
+        request.setAmount(Double.parseDouble(parts[6]));
 
-        TransferResponse response = bankingService.transfer(request);
+        Double response = bankingService.transfer(request);
         System.out.println("[SUCCESS] Transfer successful.");
-        System.out.println("  Source Account (" + response.getOriginAccountNumber() + ") New Balance: " + response.getOriginBalance());
-        System.out.println("  Target Account (" + response.getDestinationAccountNumber() + ") New Balance: " + response.getDestinationBalance());
+        System.out.println("  Source Account (" + request.getAccountNumber() + ") New Balance: " + request.getCurrency() + " " + response);
     }
 
     private void handleMonitor(String[] parts) {
@@ -184,17 +188,21 @@ public class BankingCli {
         MonitorRequest request = new MonitorRequest();
         request.setMonitorInterval(Integer.parseInt(parts[1]));
 
-        bankingService.registerMonitor(request);
+        String msg = bankingService.registerMonitor(request);
+        System.out.println("Server Response: " + msg);
         System.out.println("[SUCCESS] Monitoring registered for " + parts[1] + " seconds.");
         System.out.println("Waiting for updates... (CLI will be blocked during this period)");
+        System.out.println("Press Ctrl+C if you really want to force exit.");
 
-        // According to requirements: "the user that has issued a register request for monitoring
-        // is blocked from inputting any new request until the monitor interval expires"
-        try {
-            Thread.sleep(Long.parseLong(parts[1]) * 1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        long intervalMillis = Long.parseLong(parts[1]) * 1000;
+        long startTime = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - startTime < intervalMillis) {
+            String callback = bankingService.receiveCallback(500); // Check every 500ms
+            if (callback != null) {
+                System.out.println("\n[MONITOR UPDATE] " + callback);
+            }
         }
-        System.out.println("Monitoring interval expired.");
+        System.out.println("\nMonitoring interval expired.");
     }
 }
