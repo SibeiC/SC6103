@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -32,15 +33,21 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class SocketService {
+    private final IdGenerator idGenerator;
     private final String host;
     private final int port;
+    private final int timeout;
+    private final int maxRetries;
 
     private DatagramSocket socket;
 
     @Autowired
-    public SocketService(ApplicationArguments args,
+    public SocketService(IdGenerator idGenerator, ApplicationArguments args,
                          @Value("${socket.server.host}") String defaultHost,
-                         @Value("${socket.server.port}") int defaultPort) {
+                         @Value("${socket.server.port}") int defaultPort,
+                         @Value("${socket.timeout:1000000}") int timeout,
+                         @Value("${socket.max-retries:0}") int maxRetries) {
+        this.idGenerator = idGenerator;
         this.host = args.containsOption("host") && !Objects.requireNonNull(args.getOptionValues("host")).isEmpty()
                 ? Objects.requireNonNull(args.getOptionValues("host")).getFirst()
                 : defaultHost;
@@ -49,41 +56,73 @@ public class SocketService {
                 ? Integer.parseInt(Objects.requireNonNull(args.getOptionValues("port")).getFirst())
                 : defaultPort;
 
-        log.info("SocketService initialized with host: {}, port: {}", host, port);
+        this.timeout = timeout;
+        this.maxRetries = maxRetries;
+
+        log.info("SocketService initialized with host: {}, port: {}, timeout: {}, maxRetries: {}",
+                 host, port, timeout, maxRetries);
         this.ensureSocketConnectionEstablished();
     }
 
-    public void sendAndForget(MySerializable request) {
-        // TODO: Should not wait for the response
-        sendAndReceive(request);
-    }
-
     public Integer sendAndReceiveInt(MySerializable request) {
-        byte[] responseData = sendAndReceive(request);
+        byte[] responseData = sendAndReceiveWithRetry(request);
         return Converter.toInt(responseData);
     }
 
     public Double sendAndReceiveDouble(MySerializable request) {
-        byte[] responseData = sendAndReceive(request);
+        byte[] responseData = sendAndReceiveWithRetry(request);
         return Converter.toDouble(responseData);
     }
 
-    private byte[] sendAndReceive(MySerializable request) {
-        this.ensureSocketConnectionEstablished();
+    public String sendAndReceiveString(MySerializable request) {
+        byte[] responseData = sendAndReceiveWithRetry(request);
+        return Converter.toString(responseData);
+    }
 
-        // TODO: Add synchronization lock
-        // TODO: Handle timeout and retransmit
+    private byte[] sendAndReceiveWithRetry(MySerializable request) {
+        this.ensureSocketConnectionEstablished();
+        int requestId = idGenerator.getNextId();
+        byte[] buffer = request.marshall(requestId);
+        int attempts = 0;
+
+        while (attempts <= maxRetries) {
+            try {
+                return sendAndReceive(buffer, requestId);
+            } catch (OperationFailedException e) {
+                attempts++;
+                if (attempts > maxRetries) {
+                    throw new OperationFailedException("Request failed after " + maxRetries + " retries: " + e.getMessage());
+                }
+                log.warn("Attempt {} failed, retrying... ({})", attempts, e.getMessage());
+            }
+        }
+        throw new OperationFailedException("Request failed after max retries");
+    }
+
+    private synchronized byte[] sendAndReceive(byte[] buffer, int requestId) {
         try {
-            byte[] buffer = request.marshall();
             InetAddress address = InetAddress.getByName(host);
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
+            socket.setSoTimeout(timeout);
             socket.send(packet);
 
-            byte[] receiveBuffer = new byte[1024];
-            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-            socket.receive(receivePacket);
+            while (true) {
+                byte[] receiveBuffer = new byte[1024];
+                DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+                socket.receive(receivePacket);
 
-            return Arrays.copyOfRange(receivePacket.getData(), 0, receivePacket.getLength());
+                byte[] responseData = Arrays.copyOfRange(receivePacket.getData(), 0, receivePacket.getLength());
+
+                // Match response ID with request ID
+                int responseId = Converter.byteArrayToInt(responseData, 1);
+                if (responseId == requestId) {
+                    return responseData;
+                } else {
+                    log.debug("Received response with ID {}, but expected {}. Ignoring.", responseId, requestId);
+                }
+            }
+        } catch (SocketTimeoutException e) {
+            throw new OperationFailedException("Timeout waiting for response");
         } catch (IOException e) {
             throw new OperationFailedException("IOException: " + e.getMessage());
         }

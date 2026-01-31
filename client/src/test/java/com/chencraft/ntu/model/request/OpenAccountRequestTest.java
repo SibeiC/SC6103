@@ -5,11 +5,17 @@ import com.chencraft.ntu.service.IdGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
+@SpringBootTest
 public class OpenAccountRequestTest {
+    @Autowired
+    private IdGenerator idGenerator;
+
     @BeforeEach
     public void setUp() {
-        IdGenerator.reset();
+        idGenerator.reset();
     }
 
     @Test
@@ -45,7 +51,7 @@ public class OpenAccountRequestTest {
         Assertions.assertNotNull(request);
         Assertions.assertNotNull(expectedBytes);
 
-        byte[] actualBytes = request.marshall();
+        byte[] actualBytes = request.marshall(0);
         Assertions.assertArrayEquals(expectedBytes, actualBytes);
     }
 }

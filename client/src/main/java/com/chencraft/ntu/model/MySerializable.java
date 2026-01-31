@@ -1,6 +1,5 @@
 package com.chencraft.ntu.model;
 
-import com.chencraft.ntu.service.IdGenerator;
 import com.chencraft.ntu.util.Converter;
 
 import java.lang.reflect.Field;
@@ -36,7 +35,7 @@ public interface MySerializable {
 
     List<FieldDefn> getFieldDefs();
 
-    default byte[] marshall() {
+    default byte[] marshall(int requestId) {
         List<byte[]> pieces = new ArrayList<>();
         int totalLength = 0;
 
@@ -46,7 +45,7 @@ public interface MySerializable {
         totalLength += typeBytes.length;
 
         // Request Id
-        byte[] idBytes = Converter.toByteArray(IdGenerator.getNextId());
+        byte[] idBytes = Converter.toByteArray(requestId);
         pieces.add(idBytes);
         totalLength += idBytes.length;
 

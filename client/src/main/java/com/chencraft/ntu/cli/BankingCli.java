@@ -110,8 +110,8 @@ public class BankingCli {
         request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
 
-        bankingService.closeAccount(request);
-        System.out.println("[SUCCESS] Account close request sent.");
+        String msg = bankingService.closeAccount(request);
+        System.out.println("[SUCCESS] " + msg);
     }
 
     private void handleDeposit(String[] parts) {
@@ -188,13 +188,13 @@ public class BankingCli {
         MonitorRequest request = new MonitorRequest();
         request.setMonitorInterval(Integer.parseInt(parts[1]));
 
-        bankingService.registerMonitor(request);
+        String msg = bankingService.registerMonitor(request);
+        System.out.println("Server Response: " + msg);
         System.out.println("[SUCCESS] Monitoring registered for " + parts[1] + " seconds.");
         System.out.println("Waiting for updates... (CLI will be blocked during this period)");
 
-        // According to requirements: "the user that has issued a register request for monitoring
-        // is blocked from inputting any new request until the monitor interval expires"
         try {
+            // TODO: Implement monitor behavior
             Thread.sleep(Long.parseLong(parts[1]) * 1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

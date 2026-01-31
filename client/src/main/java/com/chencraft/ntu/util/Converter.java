@@ -99,7 +99,7 @@ public class Converter {
         return new byte[]{(byte) e.ordinal()};
     }
 
-    private static int byteArrayToInt(byte[] bytes, int offset) {
+    public static int byteArrayToInt(byte[] bytes, int offset) {
         if (endian == ByteOrder.BIG_ENDIAN) {
             return (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
         } else {

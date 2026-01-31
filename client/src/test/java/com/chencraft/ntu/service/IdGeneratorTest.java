@@ -2,6 +2,8 @@ package com.chencraft.ntu.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,18 +14,22 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SpringBootTest
 public class IdGeneratorTest {
+
+    @Autowired
+    private IdGenerator idGenerator;
 
     @BeforeEach
     void setUp() {
-        IdGenerator.reset();
+        idGenerator.reset();
     }
 
     @Test
     void testGetNextId() {
-        assertEquals(0, IdGenerator.getNextId());
-        assertEquals(1, IdGenerator.getNextId());
-        assertEquals(2, IdGenerator.getNextId());
+        assertEquals(0, idGenerator.getNextId());
+        assertEquals(1, idGenerator.getNextId());
+        assertEquals(2, idGenerator.getNextId());
     }
 
     @Test
@@ -38,7 +44,7 @@ public class IdGeneratorTest {
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 for (int j = 0; j < iterationsPerThread; j++) {
-                    ids.add(IdGenerator.getNextId());
+                    ids.add(idGenerator.getNextId());
                 }
             });
         }

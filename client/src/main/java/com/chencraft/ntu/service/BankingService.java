@@ -37,8 +37,8 @@ public class BankingService {
      *
      * @param request the account closing details
      */
-    public void closeAccount(CloseAccountRequest request) {
-        socketService.sendAndForget(request);
+    public String closeAccount(CloseAccountRequest request) {
+        return socketService.sendAndReceiveString(request);
     }
 
     /**
@@ -88,7 +88,7 @@ public class BankingService {
      *
      * @param request the monitor interval details
      */
-    public void registerMonitor(MonitorRequest request) {
-        socketService.sendAndForget(request);
+    public String registerMonitor(MonitorRequest request) {
+        return socketService.sendAndReceiveString(request);
     }
 }
