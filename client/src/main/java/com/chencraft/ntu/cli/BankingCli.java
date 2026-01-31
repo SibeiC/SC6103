@@ -1,5 +1,6 @@
 package com.chencraft.ntu.cli;
 
+import com.chencraft.ntu.exception.OperationFailedException;
 import com.chencraft.ntu.model.Currency;
 import com.chencraft.ntu.model.request.*;
 import com.chencraft.ntu.service.BankingService;
@@ -56,6 +57,8 @@ public class BankingCli {
                     default ->
                             System.out.println("Unknown command: " + command + ". Type 'help' for available commands.");
                 }
+            } catch (OperationFailedException e) {
+                System.out.println("[Operation Failed] " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("[ERROR] " + e.getMessage());
             }

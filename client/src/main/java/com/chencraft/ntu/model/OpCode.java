@@ -17,4 +17,13 @@ public enum OpCode {
     OpCode(int value) {
         this.value = (byte) value;
     }
+
+    public static OpCode fromByte(byte value) {
+        for (OpCode opCode : OpCode.values()) {
+            if (opCode.value == value) {
+                return opCode;
+            }
+        }
+        throw new IllegalArgumentException("Invalid OpCode value: " + value);
+    }
 }

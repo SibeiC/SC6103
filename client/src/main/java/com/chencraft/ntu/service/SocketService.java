@@ -1,7 +1,6 @@
 package com.chencraft.ntu.service;
 
 import com.chencraft.ntu.exception.OperationFailedException;
-import com.chencraft.ntu.model.MyDeserializable;
 import com.chencraft.ntu.model.MySerializable;
 import com.chencraft.ntu.util.Converter;
 import jakarta.annotation.PreDestroy;
@@ -69,15 +68,11 @@ public class SocketService {
         return Converter.toDouble(responseData);
     }
 
-    public <T extends MyDeserializable> T sendAndReceiveCustomType(MySerializable request, Class<T> responseType) {
-        byte[] responseData = sendAndReceive(request);
-        return MyDeserializable.unmarshal(responseData, responseType);
-    }
-
     private byte[] sendAndReceive(MySerializable request) {
         this.ensureSocketConnectionEstablished();
 
         // TODO: Add synchronization lock
+        // TODO: Handle timeout and retransmit
         try {
             byte[] buffer = request.marshall();
             InetAddress address = InetAddress.getByName(host);
@@ -90,7 +85,7 @@ public class SocketService {
 
             return Arrays.copyOfRange(receivePacket.getData(), 0, receivePacket.getLength());
         } catch (IOException e) {
-            throw new OperationFailedException("IOException: " + e.getMessage(), 503);
+            throw new OperationFailedException("IOException: " + e.getMessage());
         }
     }
 

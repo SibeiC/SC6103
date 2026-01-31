@@ -5,6 +5,6 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class StringResponse extends GenericResponse {
-    private String value;
+public class IntResponse extends GenericResponse {
+    private int value;
 }

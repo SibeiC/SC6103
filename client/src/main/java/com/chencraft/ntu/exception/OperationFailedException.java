@@ -16,19 +16,12 @@ public class OperationFailedException extends RuntimeException {
     private final String errorMessage;
 
     /**
-     * Integer error code associated with the failure.
-     */
-    private final int errorCode;
-
-    /**
      * Constructor for OperationFailedException.
      *
      * @param errorMessage descriptive error message
-     * @param errorCode    error code
      */
-    public OperationFailedException(String errorMessage, int errorCode) {
+    public OperationFailedException(String errorMessage) {
         super(errorMessage);
         this.errorMessage = errorMessage;
-        this.errorCode = errorCode;
     }
 }
