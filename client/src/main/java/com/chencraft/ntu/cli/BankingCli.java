@@ -192,13 +192,17 @@ public class BankingCli {
         System.out.println("Server Response: " + msg);
         System.out.println("[SUCCESS] Monitoring registered for " + parts[1] + " seconds.");
         System.out.println("Waiting for updates... (CLI will be blocked during this period)");
+        System.out.println("Press Ctrl+C if you really want to force exit.");
 
-        try {
-            // TODO: Implement monitor behavior
-            Thread.sleep(Long.parseLong(parts[1]) * 1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        long intervalMillis = Long.parseLong(parts[1]) * 1000;
+        long startTime = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - startTime < intervalMillis) {
+            String callback = bankingService.receiveCallback(500); // Check every 500ms
+            if (callback != null) {
+                System.out.println("\n[MONITOR UPDATE] " + callback);
+            }
         }
-        System.out.println("Monitoring interval expired.");
+        System.out.println("\nMonitoring interval expired.");
     }
 }

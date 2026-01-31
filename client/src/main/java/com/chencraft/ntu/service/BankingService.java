@@ -91,4 +91,14 @@ public class BankingService {
     public String registerMonitor(MonitorRequest request) {
         return socketService.sendAndReceiveString(request);
     }
+
+    /**
+     * Listens for a callback message from the server.
+     *
+     * @param timeoutMillis maximum time to wait for a message
+     * @return the callback message string, or null if timeout or error
+     */
+    public String receiveCallback(int timeoutMillis) {
+        return socketService.receiveCallback(timeoutMillis);
+    }
 }

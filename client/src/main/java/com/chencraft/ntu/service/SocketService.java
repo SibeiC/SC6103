@@ -79,6 +79,28 @@ public class SocketService {
         return Converter.toString(responseData);
     }
 
+    public String receiveCallback(int timeoutMillis) {
+        this.ensureSocketConnectionEstablished();
+        try {
+            socket.setSoTimeout(timeoutMillis);
+            byte[] receiveBuffer = new byte[1024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            socket.receive(receivePacket);
+
+            byte[] responseData = Arrays.copyOfRange(receivePacket.getData(), 0, receivePacket.getLength());
+            // Callback messages should have MessageType.MsgCallback (value 3)
+            if (responseData.length > 0 && responseData[0] == 3) {
+                return Converter.toString(responseData);
+            }
+            return null; // Not a callback or different message type
+        } catch (java.net.SocketTimeoutException e) {
+            return null; // Normal timeout
+        } catch (IOException e) {
+            log.error("Error receiving callback: {}", e.getMessage());
+            return null;
+        }
+    }
+
     private byte[] sendAndReceiveWithRetry(MySerializable request) {
         this.ensureSocketConnectionEstablished();
         int requestId = idGenerator.getNextId();
