@@ -1,11 +1,14 @@
 package main
 
 import (
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"math/rand"
 	"net"
 	"os"
+	"time"
+
 	"sc6103-project/proto"
 )
 
@@ -55,7 +58,7 @@ func main() {
 
 		// Inbound Packet Loss Simulation
 		if rand.Intn(100) < *lossPtr {
-			fmt.Printf("Simulated DROP request from %v\n", remoteAddr)
+			fmt.Printf("[DROP IN] Dropped request from %v\n", remoteAddr)
 			continue
 		}
 
@@ -66,19 +69,22 @@ func main() {
 		// Unmarshal Packet
 		pkt, err := proto.UnmarshalPacket(data)
 		if err != nil {
-			fmt.Printf("Malformed packet from %v: %v\n", remoteAddr, err)
+			fmt.Printf("[MALFORMED] From %v: %v\n", remoteAddr, err)
 			continue
 		}
 
-		fmt.Printf("Received %d bytes from %v. Op: %d, ReqID: %d\n", n, remoteAddr, pkt.Operation, pkt.RequestID)
+		// Log Request reception
+		logPacket("RECV", remoteAddr, pkt)
 
 		clientKey := remoteAddr.String()
 
 		// Check Invocation Semantics
 		isDup, cachedReply := semantics.CheckDuplicate(clientKey, pkt.RequestID, pkt.Operation)
 		if isDup {
-			fmt.Printf("Duplicate request %d from %v. Resending cached reply.\n", pkt.RequestID, remoteAddr)
-			// Resend cached reply
+			fmt.Printf("[DUPLICATE] Request %d from %v. Resending cached reply.\n", pkt.RequestID, remoteAddr)
+			// Log Resend
+			logRawPacket("SEND (CACHE)", remoteAddr, cachedReply)
+
 			sendReply(conn, remoteAddr, cachedReply, *lossPtr)
 			continue
 		}
@@ -100,8 +106,8 @@ func main() {
 			replyBody, procErr = svc.RegisterMonitor(pkt.Body, remoteAddr)
 		case proto.OpCheckBalance:
 			replyBody, procErr = svc.CheckBalance(pkt.Body)
-		case proto.OpApplyInterest:
-			replyBody, procErr = svc.ApplyInterest(pkt.Body)
+		case proto.OpTransfer:
+			replyBody, procErr = svc.Transfer(pkt.Body)
 		default:
 			procErr = fmt.Errorf("unknown operation %d", pkt.Operation)
 		}
@@ -114,7 +120,7 @@ func main() {
 			replyPkt.MessageType = proto.MsgError
 			replyPkt.Operation = pkt.Operation
 			replyPkt.Body = proto.PutString(nil, procErr.Error())
-			fmt.Printf("Operation Error: %v\n", procErr)
+			// fmt.Printf("Operation Error: %v\n", procErr)
 		} else {
 			replyPkt.MessageType = proto.MsgReply
 			replyPkt.Operation = pkt.Operation
@@ -122,6 +128,9 @@ func main() {
 		}
 
 		replyBytes := proto.MarshalPacket(replyPkt)
+
+		// Log Reply
+		logPacket("SEND", remoteAddr, replyPkt)
 
 		// Update History (Semantics)
 		semantics.UpdateHistory(clientKey, pkt.RequestID, pkt.Operation, replyBytes)
@@ -134,12 +143,41 @@ func main() {
 func sendReply(conn *net.UDPConn, addr *net.UDPAddr, data []byte, lossRate int) {
 	// Outbound Loss Simulation
 	if rand.Intn(100) < lossRate {
-		fmt.Printf("Simulated DROP reply to %v\n", addr)
+		fmt.Printf("[DROP OUT] Dropped reply to %v\n", addr)
 		return
 	}
 
 	_, err := conn.WriteToUDP(data, addr)
 	if err != nil {
 		fmt.Printf("Error sending reply to %v: %v\n", addr, err)
+	}
+}
+
+func logPacket(direction string, addr net.Addr, pkt proto.Packet) {
+	timestamp := time.Now().Format("15:04:05.000")
+	opName := proto.OpName(pkt.Operation)
+	msgType := proto.MsgTypeName(pkt.MessageType)
+
+	// Format: [Time] [DIR] [Addr] | Type: Request | Op: OpName | ReqID: 123 | Len: 20
+	// Body Hex Dump limited
+
+	fmt.Printf("[%s] [%-4s] %s | Type: %-8s | Op: %-14s | ID: %d | Len: %d\n",
+		timestamp, direction, addr.String(), msgType, opName, pkt.RequestID, len(pkt.Body))
+
+	// Optional: Print a small hex dump of the body for "Wireshark feel"
+	if len(pkt.Body) > 0 {
+		fmt.Printf("    Body: %s\n", hex.EncodeToString(pkt.Body))
+	}
+}
+
+func logRawPacket(direction string, addr net.Addr, data []byte) {
+	// Try parsing
+	pkt, err := proto.UnmarshalPacket(data)
+	if err == nil {
+		logPacket(direction, addr, pkt)
+	} else {
+		// Fallback
+		timestamp := time.Now().Format("15:04:05.000")
+		fmt.Printf("[%s] [%-4s] %s | RAW PACKET | Len: %d\n", timestamp, direction, addr.String(), len(data))
 	}
 }

@@ -16,13 +16,13 @@ const (
 
 // Constants for Operations
 const (
-	OpOpen          uint8 = 1
-	OpClose         uint8 = 2
-	OpDeposit       uint8 = 3
-	OpWithdraw      uint8 = 4
-	OpMonitor       uint8 = 5
-	OpCheckBalance  uint8 = 6 // Idempotent
-	OpApplyInterest uint8 = 7 // Non-Idempotent
+	OpOpen         uint8 = 1
+	OpClose        uint8 = 2
+	OpDeposit      uint8 = 3
+	OpWithdraw     uint8 = 4
+	OpMonitor      uint8 = 5
+	OpCheckBalance uint8 = 6 // Idempotent
+	OpTransfer     uint8 = 7 // Non-Idempotent
 )
 
 // Constants for Currencies
@@ -30,7 +30,47 @@ const (
 	CurrencyUSD uint8 = 0
 	CurrencySGD uint8 = 1
 	CurrencyEUR uint8 = 2
+	CurrencyGBP uint8 = 3
+	CurrencyCNY uint8 = 4
 )
+
+// OpName maps operation ID to string
+func OpName(op uint8) string {
+	switch op {
+	case OpOpen:
+		return "OpOpen"
+	case OpClose:
+		return "OpClose"
+	case OpDeposit:
+		return "OpDeposit"
+	case OpWithdraw:
+		return "OpWithdraw"
+	case OpMonitor:
+		return "OpMonitor"
+	case OpCheckBalance:
+		return "OpCheckBalance"
+	case OpTransfer:
+		return "OpTransfer"
+	default:
+		return "UnknownOp"
+	}
+}
+
+// MsgTypeName maps message type ID to string
+func MsgTypeName(msgType uint8) string {
+	switch msgType {
+	case MsgRequest:
+		return "Request"
+	case MsgReply:
+		return "Reply"
+	case MsgError:
+		return "Error"
+	case MsgCallback:
+		return "Callback"
+	default:
+		return "UnknownMsg"
+	}
+}
 
 // Packet represents the parsed message structure
 type Packet struct {
@@ -115,7 +155,7 @@ func UnmarshalOpenAccountRequest(data []byte) (OpenAccountRequest, error) {
 	return r, nil
 }
 
-// AuthRequest (Used for Close, CheckBalance, ApplyInterest)
+// AuthRequest (Used for Close, CheckBalance)
 type AuthRequest struct {
 	Name      string
 	Password  string
@@ -220,6 +260,66 @@ func (r MonitorRequest) Marshal() []byte {
 func UnmarshalMonitorRequest(data []byte) (MonitorRequest, error) {
 	sec, _, err := GetUint32(data)
 	return MonitorRequest{DurationSec: sec}, err
+}
+
+// TransferRequest
+type TransferRequest struct {
+	Name              string
+	Password          string
+	SenderAccountID   uint32
+	ReceiverAccountID uint32
+	Amount            float64
+}
+
+func (r TransferRequest) Marshal() []byte {
+	var buf []byte
+	buf = PutString(buf, r.Name)
+	buf = PutString(buf, r.Password)
+	buf = PutUint32(buf, r.SenderAccountID)
+	buf = PutUint32(buf, r.ReceiverAccountID)
+	buf = PutFloat64(buf, r.Amount)
+	return buf
+}
+
+func UnmarshalTransferRequest(data []byte) (TransferRequest, error) {
+	var r TransferRequest
+	offset := 0
+
+	name, n, err := GetString(data[offset:])
+	if err != nil {
+		return r, err
+	}
+	r.Name = name
+	offset += n
+
+	pass, n, err := GetString(data[offset:])
+	if err != nil {
+		return r, err
+	}
+	r.Password = pass
+	offset += n
+
+	sid, n, err := GetUint32(data[offset:])
+	if err != nil {
+		return r, err
+	}
+	r.SenderAccountID = sid
+	offset += n
+
+	rid, n, err := GetUint32(data[offset:])
+	if err != nil {
+		return r, err
+	}
+	r.ReceiverAccountID = rid
+	offset += n
+
+	amt, _, err := GetFloat64(data[offset:])
+	if err != nil {
+		return r, err
+	}
+	r.Amount = amt
+
+	return r, nil
 }
 
 // --- Helpers ---

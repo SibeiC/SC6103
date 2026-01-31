@@ -189,26 +189,35 @@ func (s *Service) CheckBalance(body []byte) ([]byte, error) {
 	return proto.PutFloat64(nil, acc.Balance), nil
 }
 
-// OpApplyInterest: Non-Idempotent operation (Applies 1% interest)
-// Request Body: [Name Len][Name][Pass Len][Pass][AccountID: 4 bytes]
-// Reply: [New Balance: 8 bytes]
-func (s *Service) ApplyInterest(body []byte) ([]byte, error) {
-	req, err := proto.UnmarshalAuthRequest(body)
+// OpTransfer: Transfer money
+// Reply: [Sender New Balance: 8 bytes]
+func (s *Service) Transfer(body []byte) ([]byte, error) {
+	req, err := proto.UnmarshalTransferRequest(body)
 	if err != nil {
 		return nil, err
 	}
 
-	acc, err := s.checkAuth(req.AccountID, req.Password, req.Name)
+	sender, err := s.checkAuth(req.SenderAccountID, req.Password, req.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	interest := acc.Balance * 0.01 // 1%
-	acc.Balance += interest
+	receiver, exists := s.accounts[req.ReceiverAccountID]
+	if !exists {
+		return nil, fmt.Errorf("receiver account %d does not exist", req.ReceiverAccountID)
+	}
 
-	s.notifyMonitors(acc)
+	if sender.Balance < req.Amount {
+		return nil, fmt.Errorf("insufficient funds")
+	}
 
-	return proto.PutFloat64(nil, acc.Balance), nil
+	sender.Balance -= req.Amount
+	receiver.Balance += req.Amount
+
+	s.notifyMonitors(sender)
+	s.notifyMonitors(receiver)
+
+	return proto.PutFloat64(nil, sender.Balance), nil
 }
 
 // notifyMonitors sends an update to all active monitors
