@@ -2,6 +2,7 @@ package com.chencraft.ntu;
 
 import com.chencraft.ntu.cli.BankingCli;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -16,6 +17,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application implements CommandLineRunner {
 
     private final BankingCli bankingCli;
+
+    @Value("${banking.cli.enabled:false}")
+    private boolean cliEnabled;
 
     /**
      * Constructor for Application.
@@ -38,7 +42,9 @@ public class Application implements CommandLineRunner {
         if (arg0.length > 0 && arg0[0].equals("exitcode")) {
             throw new ExitException();
         }
-        bankingCli.start();
+        if (cliEnabled) {
+            bankingCli.start();
+        }
     }
 
     /**
