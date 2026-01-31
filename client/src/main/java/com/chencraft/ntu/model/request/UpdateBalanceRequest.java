@@ -1,9 +1,13 @@
 package com.chencraft.ntu.model.request;
 
 import com.chencraft.ntu.model.Currency;
+import com.chencraft.ntu.model.FieldDefn;
 import com.chencraft.ntu.model.MySerializable;
+import com.chencraft.ntu.model.OpCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * Data transfer object for services that allow a user to deposit or withdraw money.
@@ -42,4 +46,20 @@ public class UpdateBalanceRequest implements MySerializable {
      */
     @Schema(description = "Amount to deposit or withdraw", example = "50.0", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double amount;
+
+    private Boolean depositFlag;
+
+    @Override
+    public OpCode getOpCode() {
+        if (depositFlag == null) {
+            throw new IllegalArgumentException("depositFlag must be set");
+        }
+
+        return depositFlag ? OpCode.OpDeposit : OpCode.OpWithdraw;
+    }
+
+    @Override
+    public List<FieldDefn> getFieldDefs() {
+        return List.of(FieldDefn.NAME, FieldDefn.PASSWORD, FieldDefn.ACCOUNT_NO, FieldDefn.CURRENCY, FieldDefn.ACCOUNT_NO);
+    }
 }

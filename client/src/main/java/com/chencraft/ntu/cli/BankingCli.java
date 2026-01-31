@@ -123,6 +123,7 @@ public class BankingCli {
         request.setPassword(parts[3]);
         request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
         request.setAmount(Double.parseDouble(parts[5]));
+        request.setDepositFlag(true);
 
         Double newBalance = bankingService.deposit(request);
         System.out.println("[SUCCESS] Deposit successful. New Balance: " + newBalance);
@@ -139,6 +140,7 @@ public class BankingCli {
         request.setPassword(parts[3]);
         request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
         request.setAmount(Double.parseDouble(parts[5]));
+        request.setDepositFlag(false);
 
         Double newBalance = bankingService.withdrawal(request);
         System.out.println("[SUCCESS] Withdrawal successful. New Balance: " + newBalance);
@@ -165,9 +167,9 @@ public class BankingCli {
         }
         TransferRequest request = new TransferRequest();
         request.setName(parts[1]);
-        request.setFromAccountNumber(Integer.parseInt(parts[2]));
+        request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
-        request.setToAccountNumber(Integer.parseInt(parts[4]));
+        request.setDestAccountNumber(Integer.parseInt(parts[4]));
         request.setAmount(Double.parseDouble(parts[5]));
 
         TransferResponse response = bankingService.transfer(request);

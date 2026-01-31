@@ -1,8 +1,12 @@
 package com.chencraft.ntu.model.request;
 
+import com.chencraft.ntu.model.FieldDefn;
 import com.chencraft.ntu.model.MySerializable;
+import com.chencraft.ntu.model.OpCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * Data transfer object for the service that allows a user to close an existing account.
@@ -27,4 +31,14 @@ public class CloseAccountRequest implements MySerializable {
      */
     @Schema(description = "Password for the account", example = "secure123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
+
+    @Override
+    public OpCode getOpCode() {
+        return OpCode.OpClose;
+    }
+
+    @Override
+    public List<FieldDefn> getFieldDefs() {
+        return List.of(FieldDefn.NAME, FieldDefn.PASSWORD, FieldDefn.ACCOUNT_NO);
+    }
 }

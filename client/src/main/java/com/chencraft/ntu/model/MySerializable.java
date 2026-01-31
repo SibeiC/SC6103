@@ -1,8 +1,12 @@
 package com.chencraft.ntu.model;
 
+import com.chencraft.ntu.service.IdGenerator;
 import com.chencraft.ntu.util.Converter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * Interface for defining serializable objects that can be converted into
@@ -29,32 +33,53 @@ import java.lang.reflect.Field;
  * to be serialized are properly initialized to prevent unintended behavior.
  */
 public interface MySerializable {
+    OpCode getOpCode();
+
+    List<FieldDefn> getFieldDefs();
+
     default byte[] marshall() {
-        Field[] fields = this.getClass().getDeclaredFields();
+        try {
+            // TODO: Replace ByteArrayOutputStream
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Class<?> type = field.getType();
+            // Message Type value
+            output.write(Converter.toByteArray(MessageType.MsgRequest));
 
-            try {
-                if (type.equals(String.class)) {
-                    byte[] value = Converter.toByteArray((String) field.get(this));
-                } else if (double.class.equals(type) || Double.class.equals(type)) {
-                    byte[] value = Converter.toByteArray((Double) field.get(this));
-                } else if (int.class.equals(type) || Integer.class.equals(type)) {
-                    byte[] value = Converter.toByteArray((Integer) field.get(this));
-                } else if (MySerializable.class.isAssignableFrom(type)) {
-                    byte[] value = ((MySerializable) field.get(this)).marshall();
-                } else {
-                    throw new UnsupportedOperationException("Unsupported type: " + type.getSimpleName());
+            // Request Id
+            output.write(Converter.toByteArray(IdGenerator.getNextId()));
+
+            // Operation Code
+            output.write(getOpCode().getValue());
+
+            // Body
+            for (FieldDefn fieldDefn : getFieldDefs()) {
+                try {
+                    String fieldName = fieldDefn.getFieldName();
+                    Class<?> fieldType = fieldDefn.getFieldType();
+                    Field field = this.getClass().getDeclaredField(fieldName);
+                    field.setAccessible(true);
+
+                    if (fieldType.equals(String.class)) {
+                        output.write(Converter.toByteArray((String) field.get(this)));
+                    } else if (fieldType.equals(Double.class)) {
+                        output.write(Converter.toByteArray((Double) field.get(this)));
+                    } else if (fieldType.equals(Integer.class)) {
+                        output.write(Converter.toByteArray((Integer) field.get(this)));
+                    } else if (fieldType.equals(Currency.class)) {
+                        output.write(Converter.toByteArray((Currency) field.get(this)));
+                    } else {
+                        throw new UnsupportedOperationException("Unsupported type: " + fieldType.getSimpleName());
+                    }
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException("Failed to marshall field: " + fieldDefn.getFieldName()
+                                                       + " for class: " + this.getClass()
+                                                                              .getSimpleName(), e);
                 }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Failed to marshall field: " + field.getName()
-                                                   + " for class: " + this.getClass()
-                                                                          .getSimpleName(), e);
             }
-        }
 
-        throw new UnsupportedOperationException("To be implemented.");
+            return output.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to marshall object: " + this.getClass().getSimpleName(), e);
+        }
     }
 }

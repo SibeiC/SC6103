@@ -33,6 +33,7 @@ public class AccountBalanceApiController implements AccountBalanceApi {
      */
     @Override
     public ResponseEntity<UpdateBalanceResponse> deposit(UpdateBalanceRequest request) {
+        request.setDepositFlag(true);
         Double balance = bankingService.deposit(request);
 
         UpdateBalanceResponse response = new UpdateBalanceResponse(balance);
@@ -44,6 +45,7 @@ public class AccountBalanceApiController implements AccountBalanceApi {
      */
     @Override
     public ResponseEntity<UpdateBalanceResponse> withdrawal(UpdateBalanceRequest request) {
+        request.setDepositFlag(false);
         Double balance = bankingService.withdrawal(request);
 
         UpdateBalanceResponse response = new UpdateBalanceResponse(balance);

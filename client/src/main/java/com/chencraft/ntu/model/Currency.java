@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * Enumerated type representing supported currencies in the banking system.
  */
 @Schema(description = "Type of currency")
-public enum Currency implements MySerializable {
+public enum Currency {
     /**
      * US Dollar
      */
@@ -26,11 +26,5 @@ public enum Currency implements MySerializable {
     /**
      * Chinese Yuan
      */
-    CNY;
-
-    @Override
-    public byte[] marshall() {
-        throw new UnsupportedOperationException("Not supported yet.");
-//        return Converter.toByteArray(this.name());
-    }
+    CNY
 }

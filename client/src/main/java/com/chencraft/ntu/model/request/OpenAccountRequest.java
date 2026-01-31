@@ -1,9 +1,13 @@
 package com.chencraft.ntu.model.request;
 
 import com.chencraft.ntu.model.Currency;
+import com.chencraft.ntu.model.FieldDefn;
 import com.chencraft.ntu.model.MySerializable;
+import com.chencraft.ntu.model.OpCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * Data transfer object for the service that allows a user to open a new account.
@@ -34,4 +38,14 @@ public class OpenAccountRequest implements MySerializable {
      */
     @Schema(description = "Initial account balance", example = "100.0", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double initialBalance;
+
+    @Override
+    public OpCode getOpCode() {
+        return OpCode.OpOpen;
+    }
+
+    @Override
+    public List<FieldDefn> getFieldDefs() {
+        return List.of(FieldDefn.NAME, FieldDefn.PASSWORD, FieldDefn.CURRENCY, FieldDefn.INITIAL_BALANCE);
+    }
 }
