@@ -3,9 +3,8 @@ package com.chencraft.ntu.model;
 import com.chencraft.ntu.service.IdGenerator;
 import com.chencraft.ntu.util.Converter;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,48 +37,59 @@ public interface MySerializable {
     List<FieldDefn> getFieldDefs();
 
     default byte[] marshall() {
-        try {
-            // TODO: Replace ByteArrayOutputStream
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<byte[]> pieces = new ArrayList<>();
+        int totalLength = 0;
 
-            // Message Type value
-            output.write(Converter.toByteArray(MessageType.MsgRequest));
+        // Message Type value
+        byte[] typeBytes = Converter.toByteArray(MessageType.MsgRequest);
+        pieces.add(typeBytes);
+        totalLength += typeBytes.length;
 
-            // Request Id
-            output.write(Converter.toByteArray(IdGenerator.getNextId()));
+        // Request Id
+        byte[] idBytes = Converter.toByteArray(IdGenerator.getNextId());
+        pieces.add(idBytes);
+        totalLength += idBytes.length;
 
-            // Operation Code
-            output.write(getOpCode().getValue());
+        // Operation Code
+        byte[] opCodeBytes = new byte[]{getOpCode().getValue()};
+        pieces.add(opCodeBytes);
+        totalLength += opCodeBytes.length;
 
-            // Body
-            for (FieldDefn fieldDefn : getFieldDefs()) {
-                try {
-                    String fieldName = fieldDefn.getFieldName();
-                    Class<?> fieldType = fieldDefn.getFieldType();
-                    Field field = this.getClass().getDeclaredField(fieldName);
-                    field.setAccessible(true);
+        // Body
+        for (FieldDefn fieldDefn : getFieldDefs()) {
+            try {
+                String fieldName = fieldDefn.getFieldName();
+                Class<?> fieldType = fieldDefn.getFieldType();
+                Field field = this.getClass().getDeclaredField(fieldName);
+                field.setAccessible(true);
 
-                    if (fieldType.equals(String.class)) {
-                        output.write(Converter.toByteArray((String) field.get(this)));
-                    } else if (fieldType.equals(Double.class)) {
-                        output.write(Converter.toByteArray((Double) field.get(this)));
-                    } else if (fieldType.equals(Integer.class)) {
-                        output.write(Converter.toByteArray((Integer) field.get(this)));
-                    } else if (fieldType.equals(Currency.class)) {
-                        output.write(Converter.toByteArray((Currency) field.get(this)));
-                    } else {
-                        throw new UnsupportedOperationException("Unsupported type: " + fieldType.getSimpleName());
-                    }
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new RuntimeException("Failed to marshall field: " + fieldDefn.getFieldName()
-                                                       + " for class: " + this.getClass()
-                                                                              .getSimpleName(), e);
+                byte[] fieldBytes;
+                if (fieldType.equals(String.class)) {
+                    fieldBytes = Converter.toByteArray((String) field.get(this));
+                } else if (fieldType.equals(Double.class)) {
+                    fieldBytes = Converter.toByteArray((Double) field.get(this));
+                } else if (fieldType.equals(Integer.class)) {
+                    fieldBytes = Converter.toByteArray((Integer) field.get(this));
+                } else if (fieldType.equals(Currency.class)) {
+                    fieldBytes = Converter.toByteArray((Currency) field.get(this));
+                } else {
+                    throw new UnsupportedOperationException("Unsupported type: " + fieldType.getSimpleName());
                 }
+                pieces.add(fieldBytes);
+                totalLength += fieldBytes.length;
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException("Failed to marshall field: " + fieldDefn.getFieldName()
+                                                   + " for class: " + this.getClass()
+                                                                          .getSimpleName(), e);
             }
-
-            return output.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to marshall object: " + this.getClass().getSimpleName(), e);
         }
+
+        byte[] result = new byte[totalLength];
+        int currentPos = 0;
+        for (byte[] piece : pieces) {
+            System.arraycopy(piece, 0, result, currentPos, piece.length);
+            currentPos += piece.length;
+        }
+        return result;
     }
 }

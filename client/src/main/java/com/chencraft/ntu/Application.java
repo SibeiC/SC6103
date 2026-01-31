@@ -8,8 +8,6 @@ import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.Serial;
-
 /**
  * Main application class for the Distributed Banking System.
  * Bootstraps the Spring Boot application and provides a command-line runner hook
@@ -62,8 +60,6 @@ public class Application implements CommandLineRunner {
      * Runtime exception used to terminate the app with a deterministic exit code (10) for scripts.
      */
     static class ExitException extends RuntimeException implements ExitCodeGenerator {
-        @Serial
-        private static final long serialVersionUID = 1L;
 
         @Override
         public int getExitCode() {
