@@ -2,7 +2,6 @@ package com.chencraft.ntu.cli;
 
 import com.chencraft.ntu.model.Currency;
 import com.chencraft.ntu.model.request.*;
-import com.chencraft.ntu.model.response.TransferResponse;
 import com.chencraft.ntu.service.BankingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,8 +160,8 @@ public class BankingCli {
     }
 
     private void handleTransfer(String[] parts) {
-        if (parts.length != 6) {
-            System.out.println("Usage: transfer <name> <fromAccountNumber> <password> <toAccountNumber> <amount>");
+        if (parts.length != 7) {
+            System.out.println("Usage: transfer <name> <fromAccountNumber> <password> <toAccountNumber> <currency> <amount>");
             return;
         }
         TransferRequest request = new TransferRequest();
@@ -170,12 +169,12 @@ public class BankingCli {
         request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
         request.setDestAccountNumber(Integer.parseInt(parts[4]));
-        request.setAmount(Double.parseDouble(parts[5]));
+        request.setCurrency(Currency.valueOf(parts[5].toUpperCase()));
+        request.setAmount(Double.parseDouble(parts[6]));
 
-        TransferResponse response = bankingService.transfer(request);
+        Double response = bankingService.transfer(request);
         System.out.println("[SUCCESS] Transfer successful.");
-        System.out.println("  Source Account (" + response.getOriginAccountNumber() + ") New Balance: " + response.getOriginBalance());
-        System.out.println("  Target Account (" + response.getDestinationAccountNumber() + ") New Balance: " + response.getDestinationBalance());
+        System.out.println("  Source Account (" + request.getAccountNumber() + ") New Balance: " + request.getCurrency() + " " + response);
     }
 
     private void handleMonitor(String[] parts) {

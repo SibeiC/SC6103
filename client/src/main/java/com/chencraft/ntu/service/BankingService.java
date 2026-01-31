@@ -1,7 +1,6 @@
 package com.chencraft.ntu.service;
 
 import com.chencraft.ntu.model.request.*;
-import com.chencraft.ntu.model.response.TransferResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,8 +79,8 @@ public class BankingService {
      * @param request the transfer details
      * @return a response containing updated balances for both accounts
      */
-    public TransferResponse transfer(TransferRequest request) {
-        return socketService.sendAndReceiveCustomType(request, TransferResponse.class);
+    public Double transfer(TransferRequest request) {
+        return socketService.sendAndReceiveDouble(request);
     }
 
     /**

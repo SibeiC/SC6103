@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Application-cli" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="cli" />
+  <configuration default="false" name="Application-dev" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="dev" />
     <module name="SC6103" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.chencraft.ntu.Application" />
     <extension name="coverage">
