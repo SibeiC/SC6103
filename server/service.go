@@ -70,10 +70,10 @@ func (s *Service) OpenAccount(body []byte) ([]byte, error) {
 	currency := req.Currency
 	balance := req.Balance
 
-	// Generate ID
-	id := rand.Uint32()
+	// Generate ID (limited to Java int positive range: 0 ~ 2,147,483,647)
+	id := rand.Uint32() & 0x7FFFFFFF
 	for _, exists := s.accounts[id]; exists; _, exists = s.accounts[id] {
-		id = rand.Uint32()
+		id = rand.Uint32() & 0x7FFFFFFF
 	}
 
 	acc := &Account{
@@ -205,6 +205,10 @@ func (s *Service) Transfer(body []byte) ([]byte, error) {
 	receiver, exists := s.accounts[req.ReceiverAccountID]
 	if !exists {
 		return nil, fmt.Errorf("receiver account %d does not exist", req.ReceiverAccountID)
+	}
+
+	if sender.Currency != receiver.Currency {
+		return nil, fmt.Errorf("currency mismatch: sender=%d, receiver=%d", sender.Currency, receiver.Currency)
 	}
 
 	if sender.Balance < req.Amount {
