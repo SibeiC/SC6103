@@ -90,7 +90,16 @@ public class SocketService {
             byte[] responseData = Arrays.copyOfRange(receivePacket.getData(), 0, receivePacket.getLength());
             // Callback messages should have MessageType.MsgCallback (value 3)
             if (responseData.length > 0 && responseData[0] == 3) {
-                return Converter.toString(responseData);
+                // If the message is a Callback, parse binary data: [AccountID(4B)][Balance(8B)]
+                // Header (6B) + Body(12B) = 18B minimum
+                if (responseData.length >= 18) {
+                    int accountId = Converter.byteArrayToInt(responseData, 6);
+                    long accIdUnsigned = Integer.toUnsignedLong(accountId);
+                    double balance = Converter.byteArrayToDouble(responseData, 10);
+                    return String.format("Account Update: %d, New Balance: %.2f", accIdUnsigned, balance);
+                } else {
+                    return Converter.toString(responseData);
+                }
             }
             return null; // Not a callback or different message type
         } catch (java.net.SocketTimeoutException e) {
