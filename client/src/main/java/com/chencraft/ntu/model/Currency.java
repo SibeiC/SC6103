@@ -9,6 +9,10 @@ public enum Currency {
      */
     USD,
     /**
+     * Singapore Dollar
+     */
+    SGD,
+    /**
      * Euro
      */
     EUR,
@@ -16,10 +20,6 @@ public enum Currency {
      * British Pound
      */
     GBP,
-    /**
-     * Singapore Dollar
-     */
-    SGD,
     /**
      * Chinese Yuan
      */

@@ -50,6 +50,6 @@ public class TransferRequest implements MySerializable {
 
     @Override
     public List<FieldDefn> getFieldDefs() {
-        return List.of(FieldDefn.NAME, FieldDefn.PASSWORD, FieldDefn.ACCOUNT_NO, FieldDefn.DEST_ACCOUNT_NO, FieldDefn.CURRENCY, FieldDefn.AMOUNT);
+        return List.of(FieldDefn.NAME, FieldDefn.PASSWORD, FieldDefn.ACCOUNT_NO, FieldDefn.DEST_ACCOUNT_NO, FieldDefn.AMOUNT);
     }
 }
