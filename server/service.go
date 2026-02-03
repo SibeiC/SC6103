@@ -250,7 +250,16 @@ func (s *Service) notifyMonitors(acc *Account) {
 			if rand.Intn(100) >= s.lossRate {
 				if s.udpConn != nil {
 					s.udpConn.WriteToUDP(data, m.Address)
+					// Log callback message
+					timestamp := time.Now().Format("15:04:05.000")
+					fmt.Printf("[%s] [CALLBACK] %s | Type: Callback | Op: (none) | AccID: %d | Balance: %.2f\n",
+						timestamp, m.Address.String(), acc.AccountNumber, acc.Balance)
 				}
+			} else {
+				// Log dropped callback
+				timestamp := time.Now().Format("15:04:05.000")
+				fmt.Printf("[%s] [DROP CB ] %s | Callback dropped due to simulated loss\n",
+					timestamp, m.Address.String())
 			}
 		}
 	}
