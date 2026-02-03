@@ -27,7 +27,7 @@ public class BankingService {
      * @param request the account details (name, password, currency, initial balance)
      * @return the generated unique account number
      */
-    public Long openAccount(OpenAccountRequest request) {
+    public Integer openAccount(OpenAccountRequest request) {
         return socketService.sendAndReceiveInt(request);
     }
 

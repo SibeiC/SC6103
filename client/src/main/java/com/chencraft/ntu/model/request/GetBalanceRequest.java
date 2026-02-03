@@ -20,7 +20,7 @@ public class GetBalanceRequest implements MySerializable {
     /**
      * The account number to query.
      */
-    private Long accountNumber;
+    private Integer accountNumber;
 
     /**
      * Password to authenticate the balance query.

@@ -20,7 +20,7 @@ public class CloseAccountRequest implements MySerializable {
     /**
      * The account number to be closed.
      */
-    private Long accountNumber;
+    private Integer accountNumber;
 
     /**
      * Password to authenticate the account closure.

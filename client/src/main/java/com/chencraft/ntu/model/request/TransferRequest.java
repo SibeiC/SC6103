@@ -21,7 +21,7 @@ public class TransferRequest implements MySerializable {
     /**
      * Source account number from which funds will be deducted.
      */
-    private Long accountNumber;
+    private Integer accountNumber;
 
     /**
      * Password of the source account for authentication.
@@ -31,7 +31,7 @@ public class TransferRequest implements MySerializable {
     /**
      * Target account number which will receive the funds.
      */
-    private Long destAccountNumber;
+    private Integer destAccountNumber;
 
     /**
      * Currency type of the transfer.
