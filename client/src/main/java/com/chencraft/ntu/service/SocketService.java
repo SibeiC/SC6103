@@ -61,7 +61,7 @@ public class SocketService {
 
         log.info("SocketService initialized with host: {}, port: {}, timeout: {}, maxRetries: {}",
                  host, port, timeout, maxRetries);
-        this.ensureSocketConnectionEstablished();
+        this.ensureSocketInitialized();
     }
 
     public Integer sendAndReceiveInt(MySerializable request) {
@@ -80,7 +80,7 @@ public class SocketService {
     }
 
     public String receiveCallback(int timeoutMillis) {
-        this.ensureSocketConnectionEstablished();
+        this.ensureSocketInitialized();
         try {
             socket.setSoTimeout(timeoutMillis);
             byte[] receiveBuffer = new byte[1024];
@@ -111,7 +111,7 @@ public class SocketService {
     }
 
     private byte[] sendAndReceiveWithRetry(MySerializable request) {
-        this.ensureSocketConnectionEstablished();
+        this.ensureSocketInitialized();
         int requestId = idGenerator.getNextId();
         byte[] buffer = request.marshall(requestId);
         int attempts = 0;
@@ -159,11 +159,11 @@ public class SocketService {
         }
     }
 
-    private void ensureSocketConnectionEstablished() {
+    private void ensureSocketInitialized() {
         if (this.socket == null || this.socket.isClosed()) {
             try {
                 this.socket = new DatagramSocket();
-                log.info("UDP Socket initialized");
+                log.info("Local UDP socket initialized");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -175,6 +175,6 @@ public class SocketService {
         if (socket != null && !socket.isClosed()) {
             socket.close();
         }
-        log.info("Disconnected from server");
+        log.info("Local UDP socket closed");
     }
 }
