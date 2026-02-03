@@ -101,17 +101,33 @@ public class Converter {
 
     public static int byteArrayToInt(byte[] bytes, int offset) {
         if (endian == ByteOrder.BIG_ENDIAN) {
-            return (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
+            return ((bytes[offset] & 0xFF) << 24) | ((bytes[offset + 1] & 0xFF) << 16) | ((bytes[offset + 2] & 0xFF) << 8) | (bytes[offset + 3] & 0xFF);
         } else {
-            return (bytes[offset + 3] << 24) | (bytes[offset + 2] << 16) | (bytes[offset + 1] << 8) | bytes[offset];
+            return ((bytes[offset + 3] & 0xFF) << 24) | ((bytes[offset + 2] & 0xFF) << 16) | ((bytes[offset + 1] & 0xFF) << 8) | (bytes[offset] & 0xFF);
         }
     }
 
     private static double byteArrayToDouble(byte[] bytes, int offset) {
         if (endian == ByteOrder.BIG_ENDIAN) {
-            return Double.longBitsToDouble(((long) bytes[offset] << 56) | ((long) bytes[offset + 1] << 48) | ((long) bytes[offset + 2] << 40) | ((long) bytes[offset + 3] << 32) | (bytes[offset + 4] << 24) | (bytes[offset + 5] << 16) | (bytes[offset + 6] << 8) | bytes[offset + 7]);
+            return Double.longBitsToDouble(
+                ((long) (bytes[offset] & 0xFF) << 56) | 
+                ((long) (bytes[offset + 1] & 0xFF) << 48) | 
+                ((long) (bytes[offset + 2] & 0xFF) << 40) | 
+                ((long) (bytes[offset + 3] & 0xFF) << 32) | 
+                ((long) (bytes[offset + 4] & 0xFF) << 24) | 
+                ((long) (bytes[offset + 5] & 0xFF) << 16) | 
+                ((long) (bytes[offset + 6] & 0xFF) << 8) | 
+                ((long) (bytes[offset + 7] & 0xFF)));
         } else {
-            return Double.longBitsToDouble(((long) bytes[offset + 7] << 56) | ((long) bytes[offset + 6] << 48) | ((long) bytes[offset + 5] << 40) | ((long) bytes[offset + 4] << 32) | (bytes[offset + 3] << 24) | (bytes[offset + 2] << 16) | (bytes[offset + 1] << 8) | bytes[offset]);
+            return Double.longBitsToDouble(
+                ((long) (bytes[offset + 7] & 0xFF) << 56) | 
+                ((long) (bytes[offset + 6] & 0xFF) << 48) | 
+                ((long) (bytes[offset + 5] & 0xFF) << 40) | 
+                ((long) (bytes[offset + 4] & 0xFF) << 32) | 
+                ((long) (bytes[offset + 3] & 0xFF) << 24) | 
+                ((long) (bytes[offset + 2] & 0xFF) << 16) | 
+                ((long) (bytes[offset + 1] & 0xFF) << 8) | 
+                ((long) (bytes[offset] & 0xFF)));
         }
     }
 
