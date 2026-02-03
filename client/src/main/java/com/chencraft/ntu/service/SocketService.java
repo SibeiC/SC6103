@@ -64,9 +64,9 @@ public class SocketService {
         this.ensureSocketConnectionEstablished();
     }
 
-    public Integer sendAndReceiveInt(MySerializable request) {
+    public Long sendAndReceiveInt(MySerializable request) {
         byte[] responseData = sendAndReceiveWithRetry(request);
-        return Converter.toInt(responseData);
+        return Converter.toLong(responseData);
     }
 
     public Double sendAndReceiveDouble(MySerializable request) {

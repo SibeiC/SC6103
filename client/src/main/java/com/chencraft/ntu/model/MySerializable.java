@@ -69,6 +69,8 @@ public interface MySerializable {
                     fieldBytes = Converter.toByteArray((Double) field.get(this));
                 } else if (fieldType.equals(Integer.class)) {
                     fieldBytes = Converter.toByteArray((Integer) field.get(this));
+                } else if (fieldType.equals(Long.class)) {
+                    fieldBytes = Converter.toByteArray((Long) field.get(this));
                 } else if (fieldType.equals(Currency.class)) {
                     fieldBytes = Converter.toByteArray((Currency) field.get(this));
                 } else {

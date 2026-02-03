@@ -22,7 +22,7 @@ public class UpdateBalanceRequest implements MySerializable {
     /**
      * The account number where the transaction will occur.
      */
-    private Integer accountNumber;
+    private Long accountNumber;
 
     /**
      * Password to authenticate the transaction.
@@ -53,6 +53,6 @@ public class UpdateBalanceRequest implements MySerializable {
 
     @Override
     public List<FieldDefn> getFieldDefs() {
-        return List.of(FieldDefn.NAME, FieldDefn.PASSWORD, FieldDefn.ACCOUNT_NO, FieldDefn.CURRENCY, FieldDefn.ACCOUNT_NO);
+        return List.of(FieldDefn.NAME, FieldDefn.PASSWORD, FieldDefn.ACCOUNT_NO, FieldDefn.AMOUNT);
     }
 }

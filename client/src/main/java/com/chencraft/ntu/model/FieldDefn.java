@@ -6,11 +6,11 @@ import lombok.Getter;
 public enum FieldDefn {
     NAME("name", String.class),
     PASSWORD("password", String.class),
-    ACCOUNT_NO("accountNumber", Integer.class),
+    ACCOUNT_NO("accountNumber", Long.class),
     CURRENCY("currency", Currency.class),
     INITIAL_BALANCE("initialBalance", Double.class),
     MONITOR_INTERVAL("monitorInterval", Integer.class),
-    DEST_ACCOUNT_NO("destAccountNumber", Integer.class),
+    DEST_ACCOUNT_NO("destAccountNumber", Long.class),
     AMOUNT("amount", Double.class);
 
     private final String fieldName;

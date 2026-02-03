@@ -96,7 +96,7 @@ public class BankingCli {
         request.setCurrency(Currency.valueOf(parts[3].toUpperCase()));
         request.setInitialBalance(Double.parseDouble(parts[4]));
 
-        Integer accountNumber = bankingService.openAccount(request);
+        Long accountNumber = bankingService.openAccount(request);
         System.out.println("[SUCCESS] Account opened successfully. Account Number: " + accountNumber);
     }
 
@@ -107,7 +107,7 @@ public class BankingCli {
         }
         CloseAccountRequest request = new CloseAccountRequest();
         request.setName(parts[1]);
-        request.setAccountNumber(Integer.parseInt(parts[2]));
+        request.setAccountNumber(Long.parseLong(parts[2]));
         request.setPassword(parts[3]);
 
         String msg = bankingService.closeAccount(request);
@@ -121,7 +121,7 @@ public class BankingCli {
         }
         UpdateBalanceRequest request = new UpdateBalanceRequest();
         request.setName(parts[1]);
-        request.setAccountNumber(Integer.parseInt(parts[2]));
+        request.setAccountNumber(Long.parseLong(parts[2]));
         request.setPassword(parts[3]);
         request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
         request.setAmount(Double.parseDouble(parts[5]));
@@ -138,7 +138,7 @@ public class BankingCli {
         }
         UpdateBalanceRequest request = new UpdateBalanceRequest();
         request.setName(parts[1]);
-        request.setAccountNumber(Integer.parseInt(parts[2]));
+        request.setAccountNumber(Long.parseLong(parts[2]));
         request.setPassword(parts[3]);
         request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
         request.setAmount(Double.parseDouble(parts[5]));
@@ -155,7 +155,7 @@ public class BankingCli {
         }
         GetBalanceRequest request = new GetBalanceRequest();
         request.setName(parts[1]);
-        request.setAccountNumber(Integer.parseInt(parts[2]));
+        request.setAccountNumber(Long.parseLong(parts[2]));
         request.setPassword(parts[3]);
 
         Double balance = bankingService.getBalance(request);
@@ -169,9 +169,9 @@ public class BankingCli {
         }
         TransferRequest request = new TransferRequest();
         request.setName(parts[1]);
-        request.setAccountNumber(Integer.parseInt(parts[2]));
+        request.setAccountNumber(Long.parseLong(parts[2]));
         request.setPassword(parts[3]);
-        request.setDestAccountNumber(Integer.parseInt(parts[4]));
+        request.setDestAccountNumber(Long.parseLong(parts[4]));
         request.setCurrency(Currency.valueOf(parts[5].toUpperCase()));
         request.setAmount(Double.parseDouble(parts[6]));
 

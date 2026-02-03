@@ -66,6 +66,27 @@ public class Converter {
     }
 
     /**
+     * Converts long to a 4-byte array (truncates to lower 32 bits for unsigned int compatibility).
+     */
+    public static byte[] toByteArray(Long l) {
+        byte[] bytes = new byte[4];
+        int value = l.intValue();  // Truncate to 32 bits
+        int offset = 0;
+        if (ByteOrder.BIG_ENDIAN.equals(endian)) {
+            bytes[offset] = (byte) (value >>> 24);
+            bytes[offset + 1] = (byte) (value >>> 16);
+            bytes[offset + 2] = (byte) (value >>> 8);
+            bytes[offset + 3] = (byte) value;
+        } else {
+            bytes[offset] = (byte) value;
+            bytes[offset + 1] = (byte) (value >>> 8);
+            bytes[offset + 2] = (byte) (value >>> 16);
+            bytes[offset + 3] = (byte) (value >>> 24);
+        }
+        return bytes;
+    }
+
+    /**
      * Converts double to a byte array.
      */
     public static byte[] toByteArray(Double d) {
@@ -101,17 +122,40 @@ public class Converter {
 
     public static int byteArrayToInt(byte[] bytes, int offset) {
         if (endian == ByteOrder.BIG_ENDIAN) {
-            return (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
+            return ((bytes[offset] & 0xFF) << 24) | ((bytes[offset + 1] & 0xFF) << 16) | ((bytes[offset + 2] & 0xFF) << 8) | (bytes[offset + 3] & 0xFF);
         } else {
-            return (bytes[offset + 3] << 24) | (bytes[offset + 2] << 16) | (bytes[offset + 1] << 8) | bytes[offset];
+            return ((bytes[offset + 3] & 0xFF) << 24) | ((bytes[offset + 2] & 0xFF) << 16) | ((bytes[offset + 1] & 0xFF) << 8) | (bytes[offset] & 0xFF);
         }
+    }
+
+    /**
+     * Converts byte array to unsigned 32-bit integer (returned as long).
+     */
+    public static long byteArrayToUnsignedInt(byte[] bytes, int offset) {
+        return Integer.toUnsignedLong(byteArrayToInt(bytes, offset));
     }
 
     private static double byteArrayToDouble(byte[] bytes, int offset) {
         if (endian == ByteOrder.BIG_ENDIAN) {
-            return Double.longBitsToDouble(((long) bytes[offset] << 56) | ((long) bytes[offset + 1] << 48) | ((long) bytes[offset + 2] << 40) | ((long) bytes[offset + 3] << 32) | (bytes[offset + 4] << 24) | (bytes[offset + 5] << 16) | (bytes[offset + 6] << 8) | bytes[offset + 7]);
+            return Double.longBitsToDouble(
+                ((long) (bytes[offset] & 0xFF) << 56) | 
+                ((long) (bytes[offset + 1] & 0xFF) << 48) | 
+                ((long) (bytes[offset + 2] & 0xFF) << 40) | 
+                ((long) (bytes[offset + 3] & 0xFF) << 32) | 
+                ((long) (bytes[offset + 4] & 0xFF) << 24) | 
+                ((long) (bytes[offset + 5] & 0xFF) << 16) | 
+                ((long) (bytes[offset + 6] & 0xFF) << 8) | 
+                ((long) (bytes[offset + 7] & 0xFF)));
         } else {
-            return Double.longBitsToDouble(((long) bytes[offset + 7] << 56) | ((long) bytes[offset + 6] << 48) | ((long) bytes[offset + 5] << 40) | ((long) bytes[offset + 4] << 32) | (bytes[offset + 3] << 24) | (bytes[offset + 2] << 16) | (bytes[offset + 1] << 8) | bytes[offset]);
+            return Double.longBitsToDouble(
+                ((long) (bytes[offset + 7] & 0xFF) << 56) | 
+                ((long) (bytes[offset + 6] & 0xFF) << 48) | 
+                ((long) (bytes[offset + 5] & 0xFF) << 40) | 
+                ((long) (bytes[offset + 4] & 0xFF) << 32) | 
+                ((long) (bytes[offset + 3] & 0xFF) << 24) | 
+                ((long) (bytes[offset + 2] & 0xFF) << 16) | 
+                ((long) (bytes[offset + 1] & 0xFF) << 8) | 
+                ((long) (bytes[offset] & 0xFF)));
         }
     }
 
@@ -154,8 +198,8 @@ public class Converter {
                                  .operationCode(opCode)
                                  .value(msg)
                                  .build();
-        } else if (responseType == Integer.class) {
-            int value = byteArrayToInt(responseData, 6);
+        } else if (responseType == Long.class) {
+            long value = byteArrayToUnsignedInt(responseData, 6);
             return IntResponse.builder()
                               .messageType(msgType)
                               .requestId(reqId)
@@ -175,8 +219,8 @@ public class Converter {
         }
     }
 
-    public static Integer toInt(byte[] responseData) {
-        return ((IntResponse) unmarshalResponse(responseData, Integer.class)).getValue();
+    public static Long toLong(byte[] responseData) {
+        return ((IntResponse) unmarshalResponse(responseData, Long.class)).getValue();
     }
 
     public static Double toDouble(byte[] responseData) {

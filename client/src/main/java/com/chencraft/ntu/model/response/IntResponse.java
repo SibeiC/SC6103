@@ -6,5 +6,5 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class IntResponse extends GenericResponse {
-    private int value;
+    private long value;
 }
