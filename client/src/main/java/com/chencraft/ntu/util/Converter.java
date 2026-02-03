@@ -107,7 +107,7 @@ public class Converter {
         }
     }
 
-    private static double byteArrayToDouble(byte[] bytes, int offset) {
+    public static double byteArrayToDouble(byte[] bytes, int offset) {
         if (endian == ByteOrder.BIG_ENDIAN) {
             return Double.longBitsToDouble(
                 ((long) (bytes[offset] & 0xFF) << 56) | 
