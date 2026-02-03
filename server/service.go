@@ -207,6 +207,10 @@ func (s *Service) Transfer(body []byte) ([]byte, error) {
 		return nil, fmt.Errorf("receiver account %d does not exist", req.ReceiverAccountID)
 	}
 
+	if sender.Currency != receiver.Currency {
+		return nil, fmt.Errorf("currency mismatch: sender=%d, receiver=%d", sender.Currency, receiver.Currency)
+	}
+
 	if sender.Balance < req.Amount {
 		return nil, fmt.Errorf("insufficient funds")
 	}
