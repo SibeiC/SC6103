@@ -1,6 +1,5 @@
 package com.chencraft.ntu.model.request;
 
-import com.chencraft.ntu.model.Currency;
 import com.chencraft.ntu.model.FieldDefn;
 import com.chencraft.ntu.model.MySerializable;
 import com.chencraft.ntu.model.OpCode;
@@ -28,11 +27,6 @@ public class UpdateBalanceRequest implements MySerializable {
      * Password to authenticate the transaction.
      */
     private String password;
-
-    /**
-     * The type of currency for the transaction.
-     */
-    private Currency currency;
 
     /**
      * The amount to be processed.

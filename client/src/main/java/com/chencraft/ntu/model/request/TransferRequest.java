@@ -1,6 +1,5 @@
 package com.chencraft.ntu.model.request;
 
-import com.chencraft.ntu.model.Currency;
 import com.chencraft.ntu.model.FieldDefn;
 import com.chencraft.ntu.model.MySerializable;
 import com.chencraft.ntu.model.OpCode;
@@ -32,11 +31,6 @@ public class TransferRequest implements MySerializable {
      * Target account number which will receive the funds.
      */
     private Integer destAccountNumber;
-
-    /**
-     * Currency type of the transfer.
-     */
-    private Currency currency;
 
     /**
      * The amount of money to transfer.

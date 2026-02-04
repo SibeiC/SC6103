@@ -76,8 +76,8 @@ public class BankingCli {
         System.out.println("Available commands:");
         System.out.println("  open <name> <password> <currency> <initialBalance>");
         System.out.println("  close <name> <accountNumber> <password>");
-        System.out.println("  deposit <name> <accountNumber> <password> <currency> <amount>");
-        System.out.println("  withdraw <name> <accountNumber> <password> <currency> <amount>");
+        System.out.println("  deposit <name> <accountNumber> <password> <amount>");
+        System.out.println("  withdraw <name> <accountNumber> <password> <amount>");
         System.out.println("  balance <name> <accountNumber> <password>");
         System.out.println("  transfer <name> <fromAccountNumber> <password> <toAccountNumber> <amount>");
         System.out.println("  monitor <interval>");
@@ -115,16 +115,15 @@ public class BankingCli {
     }
 
     private void handleDeposit(String[] parts) {
-        if (parts.length != 6) {
-            System.out.println("Usage: deposit <name> <accountNumber> <password> <currency> <amount>");
+        if (parts.length != 5) {
+            System.out.println("Usage: deposit <name> <accountNumber> <password> <amount>");
             return;
         }
         UpdateBalanceRequest request = new UpdateBalanceRequest();
         request.setName(parts[1]);
         request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
-        request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
-        request.setAmount(Double.parseDouble(parts[5]));
+        request.setAmount(Double.parseDouble(parts[4]));
         request.setDepositFlag(true);
 
         Double newBalance = bankingService.deposit(request);
@@ -132,16 +131,15 @@ public class BankingCli {
     }
 
     private void handleWithdraw(String[] parts) {
-        if (parts.length != 6) {
-            System.out.println("Usage: withdraw <name> <accountNumber> <password> <currency> <amount>");
+        if (parts.length != 5) {
+            System.out.println("Usage: withdraw <name> <accountNumber> <password> <amount>");
             return;
         }
         UpdateBalanceRequest request = new UpdateBalanceRequest();
         request.setName(parts[1]);
         request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
-        request.setCurrency(Currency.valueOf(parts[4].toUpperCase()));
-        request.setAmount(Double.parseDouble(parts[5]));
+        request.setAmount(Double.parseDouble(parts[4]));
         request.setDepositFlag(false);
 
         Double newBalance = bankingService.withdrawal(request);
@@ -163,8 +161,8 @@ public class BankingCli {
     }
 
     private void handleTransfer(String[] parts) {
-        if (parts.length != 7) {
-            System.out.println("Usage: transfer <name> <fromAccountNumber> <password> <toAccountNumber> <currency> <amount>");
+        if (parts.length != 6) {
+            System.out.println("Usage: transfer <name> <fromAccountNumber> <password> <toAccountNumber> <amount>");
             return;
         }
         TransferRequest request = new TransferRequest();
@@ -172,12 +170,11 @@ public class BankingCli {
         request.setAccountNumber(Integer.parseInt(parts[2]));
         request.setPassword(parts[3]);
         request.setDestAccountNumber(Integer.parseInt(parts[4]));
-        request.setCurrency(Currency.valueOf(parts[5].toUpperCase()));
-        request.setAmount(Double.parseDouble(parts[6]));
+        request.setAmount(Double.parseDouble(parts[5]));
 
         Double response = bankingService.transfer(request);
         System.out.println("[SUCCESS] Transfer successful.");
-        System.out.println("  Source Account (" + request.getAccountNumber() + ") New Balance: " + request.getCurrency() + " " + response);
+        System.out.println("  Source Account (" + request.getAccountNumber() + ") New Balance: " + response);
     }
 
     private void handleMonitor(String[] parts) {
