@@ -20,13 +20,12 @@
 
 头部总长度：**6 Bytes**
 
-
-| Offset | Length   | Field Name      | Type     | Description                                  |
-| ------ | -------- | --------------- | -------- | -------------------------------------------- |
-| **0**  | 1 Byte   | **MessageType** | `uint8`  | 消息的类别（请求、响应等）                   |
-| **1**  | 4 Bytes  | **RequestID**   | `uint32` | 请求的唯一标识符（大端序）用于匹配请求与响应 |
-| **5**  | 1 Byte   | **Operation**   | `uint8`  | 具体业务操作指令（如存款、取款）             |
-| **6**  | Variable | **Body**        | `[]byte` | 业务负载数据。具体格式取决于`Operation`      |
+| Offset      | Length   | Field Name            | Type       | Description                                  |
+| ----------- | -------- | --------------------- | ---------- | -------------------------------------------- |
+| **0** | 1 Byte   | **MessageType** | `uint8`  | 消息的类别（请求、响应等）                   |
+| **1** | 4 Bytes  | **RequestID**   | `uint32` | 请求的唯一标识符（大端序）用于匹配请求与响应 |
+| **5** | 1 Byte   | **Operation**   | `uint8`  | 具体业务操作指令（如存款、取款）             |
+| **6** | Variable | **Body**        | `[]byte` | 业务负载数据。具体格式取决于 `Operation`   |
 
 ## 数据类型编码
 
@@ -66,39 +65,34 @@
 
 Message Types (Offset: 0)
 
-
-| **Value** | **Enum Name** | **Description**     |
-| --------- | ------------- | ------------------- |
-| `0x00`    | `MsgRequest`  | 发起请求            |
-| `0x01`    | `MsgReply`    | 正常响应            |
-| `0x02`    | `MsgError`    | 错误响应            |
-| `0x03`    | `MsgCallback` | 服务器主动推送/回调 |
+| **Value** | **Enum Name** | **Description** |
+| --------------- | ------------------- | --------------------- |
+| `0x00`        | `MsgRequest`      | 发起请求              |
+| `0x01`        | `MsgReply`        | 正常响应              |
+| `0x02`        | `MsgError`        | 错误响应              |
+| `0x03`        | `MsgCallback`     | 服务器主动推送/回调   |
 
 Operations (Offset: 5)
 
-
-| **Value** | **Enum Name**    | **Idempotent** | **Description** |
-| --------- | ---------------- | -------------- | --------------- |
-| `0x01`    | `OpOpen`         | No             | 开户            |
-| `0x02`    | `OpClose`        | No             | 销户            |
-| `0x03`    | `OpDeposit`      | No             | 存款            |
-| `0x04`    | `OpWithdraw`     | No             | 取款            |
-| `0x05`    | `OpMonitor`      | -              | 开启监控        |
-| `0x06`    | `OpCheckBalance` | **Yes**        | 查询余额        |
-| `0x07`    | `OpTransfer`     | No             | 转账            |
-
-+转账 回复当前用户余额
+| **Value** | **Enum Name** | **Idempotent** | **Description** |
+| --------------- | ------------------- | -------------------- | --------------------- |
+| `0x01`        | `OpOpen`          | No                   | 开户                  |
+| `0x02`        | `OpClose`         | No                   | 销户                  |
+| `0x03`        | `OpDeposit`       | No                   | 存款                  |
+| `0x04`        | `OpWithdraw`      | No                   | 取款                  |
+| `0x05`        | `OpMonitor`       | -                    | 开启监控              |
+| `0x06`        | `OpCheckBalance`  | **Yes**        | 查询余额              |
+| `0x07`        | `OpTransfer`      | No                   | 转账                  |
 
 Currencies (Used in Body)
 
-（+rmb 英镑）
-
-
 | **Value** | **Enum Name** |
-| --------- | ------------- |
-| `0x00`    | `CurrencyUSD` |
-| `0x01`    | `CurrencySGD` |
-| `0x02`    | `CurrencyEUR` |
+| --------------- | ------------------- |
+| `0x00`        | `CurrencyUSD`     |
+| `0x01`        | `CurrencySGD`     |
+| `0x02`        | `CurrencyEUR`     |
+| `0x03`        | `currencyGBP`     |
+| `0x04`        | `currencyCNY`     |
 
 ## 业务负载结构
 
@@ -107,8 +101,6 @@ Currencies (Used in Body)
 * **关联操作**: `OpOpen (1)`
 * **对应结构**: `OpenAccountRequest`
 * request
-
-（用long）balance发整数做左移位
 
 ```plaintext
 +---------------------------------------------------------------+
@@ -129,7 +121,7 @@ Currencies (Used in Body)
 +---------------------------------------------------------------+
 ```
 
-currency + balance 是9byte，现在是没有对齐的（想用go来写，不存在内存映射问题）
+currency + balance 是9byte
 
 详细报文格式：
 
@@ -181,7 +173,7 @@ currency + balance 是9byte，现在是没有对齐的（想用go来写，不存
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
   ```
 
-### Auth Action（改
+### Account Action
 
 * **关联操作**: `OpClose (2)`, `OpCheckBalance (6)`, `OpApplyInterest (7)`
 * **对应结构**: `AuthRequest`
